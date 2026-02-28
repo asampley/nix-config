@@ -32,6 +32,8 @@
               allowedTCPPorts = lib.optionals cfg.prosody.openFirewall [
                 5222
                 5223
+                5269
+                5270
               ];
             };
 
@@ -82,6 +84,10 @@
                 }
               ];
               xmppComplianceSuite = lib.mkDefault true;
+              extraConfig = ''
+                c2s_direct_tls_ports = { 5223 }
+                s2s_direct_tls_ports = { 5270 }
+              '';
             };
 
             # certs for xmpp
