@@ -18,7 +18,7 @@
               name = service;
               value = {
                 unitConfig = {
-                  OnSuccess = [ "notify-on-success@${service}.service" ];
+                  #OnSuccess = [ "notify-on-success@${service}.service" ];
                   OnFailure = [ "notify-on-failure@${service}.service" ];
                 };
               };
