@@ -51,7 +51,20 @@
                   #baseurl = "http://localhost:2586";
                 };
               };
-              prometheus-node.enable = true;
+            };
+
+            services.prometheus.exporters.node.enable = true;
+            services.prometheus.exporters.borg = {
+              enable = true;
+              user = "borg";
+              settings = {
+                borg_repos = [
+                  {
+                    path = config.services.borgbackup.jobs."${config.my.cloud.nextcloud.borgbackup.name}".repo;
+                    passcommand = "cat ${config.sops.secrets."borg/pass".path}";
+                  }
+                ];
+              };
             };
 
             my.notifications = {
@@ -173,20 +186,27 @@
               "utf-nate@2.service"
             ];
 
-            sops.secrets.borg-pass = { };
+            sops.secrets."borg/pass" = {
+              owner = config.users.users.borg.name;
+            };
 
-            services.borgbackup.jobs."${config.my.cloud.nextcloud.borgbackup.name}" = {
+            my.backup.borg.jobs."${config.my.cloud.nextcloud.borgbackup.name}" = {
               repo = "ssh://fm2515@fm2515.rsync.net/./backup/nextcloud";
 
               environment = {
-                BORG_RSH = "ssh -i /etc/ssh/ssh_host_ed25519_key";
                 BORG_REMOTE_PATH = "/usr/local/bin/borg1/borg1";
               };
 
               encryption = {
                 mode = "repokey";
-                passCommand = "cat ${config.sops.secrets.borg-pass.path}";
+                passCommand = "cat ${config.sops.secrets."borg/pass".path}";
               };
+            };
+
+            systemd.services.${config.services.prometheus.exporters.borg.serviceName}.serviceConfig = {
+              Environment = [
+                ''BORG_REMOTE_PATH="/usr/local/bin/borg1/borg1"''
+              ];
             };
 
             # This option defines the first version of NixOS you have installed on this particular machine,
