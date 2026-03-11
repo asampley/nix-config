@@ -4,28 +4,9 @@
     { self', pkgs, ... }:
     {
       packages = {
-        accel-rotation = pkgs.writeShellScriptBin "accel-rotation" ''
-
-          set -eu
-          ACCEL_DISPLAY=$1
-          X=$(cat $ACCEL_DISPLAY/in_accel_x_raw)
-          Y=$(cat $ACCEL_DISPLAY/in_accel_y_raw)
-          if [ $X -gt 0 ]; then
-            if [ $Y -gt 0 ]; then
-              if [ $Y -gt $X ]; then R=0; else R=270; fi
-            else
-              if [ $Y -lt -$X ]; then R=180; else R=270; fi
-            fi
-          else
-            if [ $Y -gt 0 ]; then
-              if [ -$Y -lt $X ]; then R=0; else R=270; fi
-            else
-              if [ $Y -lt $X ]; then R=180; else R=270; fi
-            fi
-          fi
-
-          echo "$R"
-        '';
+        accel-rotation = pkgs.writeShellScriptBin "accel-rotation" (
+          builtins.readFile ../scripts/accel-rotation
+        );
 
         niri-accel-rotate = pkgs.writeShellScriptBin "niri-accel-rotate" ''
           set -eu
@@ -59,24 +40,11 @@
         let
           cfg = config.my.tablet;
         in
-        {
-          systemd.user.services = {
-            niri-rotate = lib.mkIf cfg.niri {
-              Unit = {
-                Description = "accelerometer detecting screen rotation";
-                After = [ "niri.service" ];
-                PartOf = [ "niri.service" ];
-              };
-
-              Install = {
-                WantedBy = [ "niri.service" ];
-              };
-
-              Service = {
-                ExecStart = "${self'.packages.niri-accel-auto-rotate}/bin/niri-accel-auto-rotate";
-              };
-            };
-          };
+        lib.mkIf cfg.niri {
+          home.packages = with self'.packages; [
+            # Used by waybar to rotate screen
+            niri-accel-rotate
+          ];
         };
     }
   );

@@ -2,6 +2,7 @@
 {
 	"modules-left": [
 		"custom/niri-overview",
+		"custom/niri-accel-rotate",
 		"niri/workspaces"
 	],
 	"modules-center": [
@@ -16,8 +17,16 @@
 		"icon": true
 	},
 	"custom/niri-overview": {
-		"format": "  ",
+		"format": "",
 		"tooltip-format": "Overview",
 		"on-click": "niri msg action toggle-overview"
+	},
+	"custom/niri-accel-rotate": {
+		"format": "",
+		"tooltip-format": "Rotate screen to accelerometer",
+		"interval": "once",
+		"exec-if": "test -e /sys/bus/iio/devices/iio:device1",
+		"exec": "echo {}",
+		"on-click": "niri-accel-rotate /sys/bus/iio/devices/iio:device1"
 	}
 }

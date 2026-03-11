@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+set -eu
+
+ACCEL_DISPLAY=$1
+X=$(cat $ACCEL_DISPLAY/in_accel_x_raw)
+Y=$(cat $ACCEL_DISPLAY/in_accel_y_raw)
+
+if [ $X -gt 0 ]; then
+	if [ $Y -gt 0 ]; then
+		if [ $Y -gt $X ]; then R=0; else R=270; fi
+	else
+		if [ $Y -lt -$X ]; then R=180; else R=270; fi
+	fi
+else
+	if [ $Y -gt 0 ]; then
+		if [ -$Y -lt $X ]; then R=0; else R=270; fi
+	else
+		if [ $Y -lt $X ]; then R=180; else R=270; fi
+	fi
+fi
+
+echo "$R"
