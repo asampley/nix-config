@@ -85,7 +85,9 @@
                     annotations:
                       summary: Low disk space on root partition
                   - alert: DailyBackupMissing
-                    expr: borg_last_archive_completion_time_seconds + 60 * 60 * 25 < time()
+                    expr: |
+                      borg_last_archive_completion_time_seconds + 1d + 1h < time()
+                        or absent_over_time(borg_last_archive_completion_time_seconds[1d]) > 0
                     annotations:
                       summary: Backups may be missing
               ''
