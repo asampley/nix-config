@@ -154,7 +154,23 @@
             systemd.services.terraria = {
               serviceConfig = {
                 EnvironmentFile = config.sops.secrets."terraria/pass-env".path;
+              };
+            };
 
+            users.users.borg.extraGroups = [ "terraria" ];
+
+            my.backup.borg.jobs.terraria = {
+              repo = "ssh://fm2515@fm2515.rsync.net/./backup/terraria";
+
+	      paths = "/var/lib/terraria/";
+
+              environment = {
+                BORG_REMOTE_PATH = "/usr/local/bin/borg1/borg1";
+              };
+
+              encryption = {
+                mode = "repokey";
+                passCommand = "cat ${config.sops.secrets."borg/pass".path}";
               };
             };
 
