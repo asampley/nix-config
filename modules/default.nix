@@ -41,13 +41,14 @@
         pkg:
         builtins.elem (lib.getName pkg) [
           "hplip"
+          "nvidia-x11"
+          "nvidia-settings"
+          "nvidia-persistenced"
           "steam"
           "steam-original"
           "steam-unwrapped"
           "steam-run"
-          "nvidia-x11"
-          "nvidia-settings"
-          "nvidia-persistenced"
+          "terraria-server"
         ];
 
       # List packages installed in system profile. To search, run:

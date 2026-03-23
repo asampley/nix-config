@@ -1,4 +1,9 @@
-{ self, withSystem, ... }:
+{
+  self,
+  lib,
+  withSystem,
+  ...
+}:
 {
   flake.nixosConfigurations.willheim = withSystem "x86_64-linux" (
     { inputs', ... }:
@@ -6,7 +11,7 @@
       modules = builtins.attrValues self.nixosModules ++ [
         self.inputs.sops-nix.nixosModules.sops
         (
-          { config, ... }:
+          { config, pkgs, ... }:
           {
             imports = [
               ./hardware-configuration.nix
@@ -121,6 +126,29 @@
                 PasswordAuthentication = false;
                 KbdInteractiveAuthentication = false;
               };
+            };
+
+            sops.secrets."terraria/pass" = {
+              owner = config.users.users.terraria.name;
+            };
+
+            services.terraria = {
+              enable = true;
+              openFirewall = true;
+              noUPnP = true;
+              password = "$(cat ${config.sops.secrets."terraria/pass".path})";
+              worldPath = "${config.services.terraria.dataDir}/Joe_Biden's_America.wld";
+              package = pkgs.terraria-server.overrideAttrs (
+                final: previous: rec {
+                  version = "1.4.5.6";
+                  urlVersion = lib.replaceStrings [ "." ] [ "" ] version;
+
+                  src = builtins.fetchurl {
+                    url = "https://terraria.org/api/download/pc-dedicated-server/terraria-server-${urlVersion}.zip";
+                    sha256 = "sha256:0mcigrvmgdbivj4qahswm1shhzrlq58q53wc8hs39z8pq9d4ap6p";
+                  };
+                }
+              );
             };
 
             services.nginx.virtualHosts = {

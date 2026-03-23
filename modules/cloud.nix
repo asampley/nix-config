@@ -136,7 +136,7 @@
               "${cfg.nextcloud.borgbackup.name}" =
                 let
                   sudo-nc = "/run/wrappers/bin/sudo -u nextcloud -g nextcloud";
-		in
+                in
                 {
                   paths = [
                     cfgnc.datadir
