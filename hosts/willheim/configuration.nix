@@ -128,7 +128,7 @@
               };
             };
 
-            sops.secrets."terraria/pass" = {
+            sops.secrets."terraria/pass-env" = {
               owner = config.users.users.terraria.name;
             };
 
@@ -136,7 +136,7 @@
               enable = true;
               openFirewall = true;
               noUPnP = true;
-              password = "$(cat ${config.sops.secrets."terraria/pass".path})";
+              password = "\${PASS}";
               worldPath = "${config.services.terraria.dataDir}/Joe_Biden's_America.wld";
               package = pkgs.terraria-server.overrideAttrs (
                 final: previous: rec {
@@ -149,6 +149,13 @@
                   };
                 }
               );
+            };
+
+            systemd.services.terraria = {
+              serviceConfig = {
+                EnvironmentFile = config.sops.secrets."terraria/pass-env".path;
+
+              };
             };
 
             services.nginx.virtualHosts = {
