@@ -24,8 +24,13 @@
         stylix.image = ../files/wallpaper.jpg;
 
         stylix.targets = {
-          # firefox complains about changing settings if you mess with it
-          firefox.enable = false;
+          firefox = {
+            enable = true;
+            profileNames = [
+              "default"
+              "work"
+            ];
+          };
 
           # Custom css created
           waybar.enable = false;

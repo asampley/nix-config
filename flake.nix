@@ -34,6 +34,16 @@
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    firefox-addons = {
+      url = "git+https://gitlab.com/rycee/nur-expressions?dir=pkgs/firefox-addons";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    firefox-csshacks = {
+      url = "github:MrOtherGuy/firefox-csshacks";
+      flake = false;
+    };
   };
 
   outputs =
@@ -50,7 +60,7 @@
       perSystem =
         { pkgs, ... }:
         {
-          formatter = pkgs.nixfmt;
+          formatter = pkgs.nixfmt-tree;
           legacyPackages = {
             # Home configurations defined as legacy packages to allow having a default for all systems.
             #
