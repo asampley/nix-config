@@ -1,6 +1,5 @@
 { self, withSystem, ... }:
 {
-a
   flake.nixosConfigurations.miranda = withSystem "x86_64-linux" (
     { ... }:
     self.inputs.nixpkgs.lib.nixosSystem {
