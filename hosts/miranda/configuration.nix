@@ -1,5 +1,6 @@
 { self, withSystem, ... }:
 {
+a
   flake.nixosConfigurations.miranda = withSystem "x86_64-linux" (
     { ... }:
     self.inputs.nixpkgs.lib.nixosSystem {
@@ -84,10 +85,10 @@
             ]; # a better way to do this than check and hardcode?
             boot.resumeDevice = config.fileSystems."/".device;
             powerManagement.enable = true;
-            systemd.sleep.extraConfig = ''
-              HibernateDelaySec=15m
-              SuspendState=mem
-            '';
+            systemd.sleep.settings.Sleep = {
+              HibernateDelaySec = "15m";
+              SuspendState = "mem";
+            };
 
             # power keys
             services.logind.settings.Login = {

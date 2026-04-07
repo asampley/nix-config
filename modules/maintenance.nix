@@ -27,14 +27,16 @@
           ];
         };
 
+        # Retry once just in case network conditions are bad (e.g. hibernation)
         systemd.services.nixos-upgrade = {
+          unitConfig = {
+            StartLimitIntervalSec = "5m";
+            StartLimitBurst = "2";
+          };
 
           serviceConfig = {
-            # Retry just in case network conditions are bad (e.g. hibernation)
             Restart = "on-failure";
             RestartSec = "1m";
-            RestartSteps = "10";
-            RestartMaxDelaySec = "1h";
           };
         };
       };
