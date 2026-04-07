@@ -19,6 +19,7 @@
             my.development.enable = true;
             my.dynamic.enable = true;
             my.gaming.enable = true;
+            my.gui.enable = true;
             my.http-file-share.enable = true;
 
             my.maintenance = {
@@ -64,8 +65,6 @@
 
             hardware.graphics.enable = true;
             hardware.graphics.enable32Bit = true;
-
-            programs.firefox.enable = true;
 
             environment.systemPackages = with pkgs; [
               vulkan-tools

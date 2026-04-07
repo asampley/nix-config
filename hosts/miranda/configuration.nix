@@ -21,6 +21,7 @@
             my.dynamic.enable = true;
             #my.emulation.enable = true;
             my.gaming.enable = true;
+            my.gui.enable = true;
             #my.http-file-share.enable = true;
 
             my.maintenance = {
@@ -68,8 +69,6 @@
 
             # Enable touchpad support (enabled default in most desktopManager).
             services.libinput.enable = true;
-
-            programs.firefox.enable = true;
 
             swapDevices = [
               {

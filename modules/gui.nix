@@ -5,6 +5,20 @@
   ...
 }:
 {
+  flake.nixosModules.gui =
+    { config, pkgs, ... }:
+    {
+      options.my.gui = with lib; {
+        enable = mkEnableOption "gui setup";
+      };
+
+      config = lib.mkIf config.my.gui.enable {
+        environment.systemPackages = with pkgs; [
+          firefox
+        ];
+      };
+    };
+
   flake.homeModules.gui = moduleWithSystem (
     { inputs', ... }:
     {
@@ -52,11 +66,6 @@
 
         programs.firefox = {
           enable = true;
-          policies = {
-            DisableTelemetry = true;
-            DisableFirefoxAccounts = true;
-            EnableTrackingProtection.Value = true;
-          };
           profiles =
             let
               shared-profile = {
@@ -130,11 +139,35 @@
                   "browser.sessionstore.resume_session_once" = true;
                   # Automatically install plugins
                   "extensions.autoDisableScopes" = 0;
-                  # Finger-printing protection with dark mode support
-                  "privacy.fingerprintingProtection" = true;
-                  "privacy.fingerprintingProtection.overrides" = "+AllTargets,-CssPrefersColorScheme";
                   # Use custom css defined in userChrome.css
                   "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
+                  # Enable HTTPS-Only Mode
+                  "dom.security.https_only_mode" = true;
+                  "dom.security.https_only_mode_ever_enabled" = true;
+                  # Privacy settings
+                  "privacy.donottrackheader.enabled" = true;
+                  "privacy.fingerprintingProtection" = true;
+                  "privacy.fingerprintingProtection.overrides" = "+AllTargets,-CSSPrefersColorScheme";
+                  "privacy.trackingprotection.enabled" = true;
+                  "privacy.trackingprotection.crytpomining.enabled" = true;
+                  "privacy.trackingprotection.emailtracking.enabled" = true;
+                  "privacy.trackingprotection.emailtracking.pbmode.enabled" = true;
+                  "privacy.trackingprotection.pbmode.enabled" = false;
+                  "privacy.trackingprotection.socialtracking.enabled" = true;
+                  "privacy.partition.network_state.ocsp_cache" = true;
+                  # Disable Firefox 'experiments'
+                  "experiments.activeExperiment" = false;
+                  "experiments.enabled" = false;
+                  "experiments.supported" = false;
+                  "network.allow-experiments" = false;
+                  # Disable Firefox features
+                  "extensions.pocket.enabled" = false;
+                  "identity.fxaccounts.enabled" = false;
+                  # Disable telemetry
+                  "datareporting.healthreport.uploadEnabled" = false;
+                  "datareporting.policy.dataSubmissionEnabled" = false;
+                  "datareporting.usage.uploadEnabled" = false;
+                  "toolkit.telemetry.archive.enabled" = false;
                 };
 
                 extensions = {
