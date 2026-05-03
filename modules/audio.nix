@@ -48,7 +48,7 @@
 
       config = lib.mkIf config.my.noise-reduce.enable {
         services.pipewire = {
-          extraLv2Packages = [ pkgs.rnnoise-plugin ];
+          extraLadspaPackages = [ pkgs.rnnoise-plugin.ladspa ];
           extraConfig.pipewire."91-rt" = {
             "name" = "libpipewire-module-rt";
             "args" = {
@@ -92,10 +92,8 @@
                       {
                         "name" = "rnnoise";
                         "type" = "ladspa";
-                        "plugin" = "${pkgs.rnnoise-plugin}/lib/ladspa/librnnoise_ladspa.so";
+                        "plugin" = "librnnoise_ladspa";
                         "label" = "noise_suppressor_mono";
-                        #"type" = "lv2";
-                        #"plugin" = "https://github.com/werman/noise-suppression-for-voice#stereo";
                         "control" = {
                           "VAD Threshold (%)" = 50.0;
                           "VAD Grace Period (ms)" = 200;

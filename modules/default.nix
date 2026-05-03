@@ -41,9 +41,10 @@
         pkg:
         builtins.elem (lib.getName pkg) [
           "hplip"
-          "nvidia-x11"
-          "nvidia-settings"
+          "nvidia-kernel-modules"
           "nvidia-persistenced"
+          "nvidia-settings"
+          "nvidia-x11"
           "steam"
           "steam-original"
           "steam-unwrapped"
