@@ -107,6 +107,7 @@
                       notifications
                       ntfy-client-sops
                       podman
+                      sc-controller
                       sops
                       stylix
                       tablet
