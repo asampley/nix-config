@@ -28,6 +28,7 @@
         extraGroups = [
           "wheel"
           "plugdev"
+          "input"
         ]
         ++ lib.optional config.services.nginx.enable "nginx"
         ++ lib.optional config.virtualisation.docker.enable "docker";
