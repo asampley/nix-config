@@ -18,6 +18,8 @@
       config = lib.mkIf config.my.stylix.enable {
         stylix.enable = lib.mkDefault true;
 
+        stylix.overlays.enable = false;
+
         stylix.base16Scheme = "${pkgs.base16-schemes}/share/themes/darkviolet.yaml";
 
         stylix.fonts.sizes.desktop = 10;
