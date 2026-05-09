@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ lib, moduleWithSystem, ... }:
 {
   perSystem =
     { pkgs, ... }:
@@ -13,12 +13,13 @@
       );
     };
 
-  flake.homeModules.sc-controller =
+  flake.homeModules.sc-controller = moduleWithSystem (
+    { self', ... }:
     { config, pkgs, ... }:
     {
       options.my.programs.sc-controller = with lib; {
         enable = mkEnableOption "sc-controller with software" // { default = true; };
-        package = mkPackageOption pkgs "sc-controller" { };
+        package = mkPackageOption self'.packages "sc-controller" { };
       };
 
       config =
@@ -35,5 +36,6 @@
             "scc/profiles".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/files/.config/scc/profiles";
           };
         };
-    };
+    }
+  );
 }
