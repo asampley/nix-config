@@ -157,8 +157,6 @@
               };
             };
 
-            users.users.borg.extraGroups = [ "terraria" ];
-
             my.backup.borg.jobs.terraria = {
               repo = "ssh://fm2515@fm2515.rsync.net/./backup/terraria";
 
