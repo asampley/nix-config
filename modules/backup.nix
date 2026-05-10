@@ -41,23 +41,6 @@
               cfg.defaults.jobs
             ]
           ) cfg.jobs;
-
-          systemd.services = builtins.listToAttrs (
-            builtins.attrValues (
-              builtins.mapAttrs (name: value: {
-                name = "borgbackup-job-${name}";
-                value = {
-                  # TODO figure out why this doesn't work
-                  #serviceConfig.ReadOnlyPaths = builtins.trace value (
-                  #  lib.optionals (value ? "paths") (
-                  #    if builtins.isList value.paths then value.paths else [ value.paths ]
-                  #  )
-                  #);
-                  serviceConfig.AmbientCapabilities = "CAP_DAC_READ_SEARCH";
-                };
-              }) cfg.jobs
-            )
-          );
         };
     };
 

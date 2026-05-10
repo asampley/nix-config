@@ -157,6 +157,9 @@
               };
             };
 
+            users.users.borg.extraGroups = [ config.users.users.terraria.group ];
+            users.users.terraria.homeMode = "770";
+
             my.backup.borg.jobs.terraria = {
               repo = "ssh://fm2515@fm2515.rsync.net/./backup/terraria";
 
