@@ -28,7 +28,6 @@
         extraGroups = [
           "wheel"
           "plugdev"
-          "input"
         ]
         ++ lib.optional config.services.nginx.enable "nginx"
         ++ lib.optional config.virtualisation.docker.enable "docker";
@@ -102,10 +101,16 @@
         clickMethod = "clickfinger";
       };
 
-      programs.ssh.knownHosts = {
-        "fm2515.rsync.net" = {
-          publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINdUkGe6kKn5ssz4WRZKjcws0InbQqZayenzk9obmP1z";
+      programs.ssh = {
+        knownHosts = {
+          "fm2515.rsync.net" = {
+            publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINdUkGe6kKn5ssz4WRZKjcws0InbQqZayenzk9obmP1z";
+          };
         };
+        # TODO determine problem with ipv6
+        extraConfig = ''
+          AddressFamily inet
+        '';
       };
 
       hardware.steam-hardware.enable = true;
