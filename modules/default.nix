@@ -243,6 +243,9 @@
           enable = true;
           useFlake = true;
           frequency = "Mon *-*-* 00:00:00";
+          preSwitchCommands = [
+            "nix flake update"
+          ];
         };
 
         systemd.user.services.home-manager-auto-upgrade.Unit = {
