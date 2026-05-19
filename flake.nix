@@ -44,6 +44,11 @@
       url = "github:MrOtherGuy/firefox-csshacks";
       flake = false;
     };
+
+    tree-sitter-svelte = {
+      url = "github:tree-sitter-grammars/tree-sitter-svelte";
+      flake = false;
+    };
   };
 
   outputs =
@@ -58,8 +63,16 @@
       ];
       systems = import ./systems.nix;
       perSystem =
-        { pkgs, ... }:
+        { pkgs, system, ... }:
         {
+          _module.args.pkgs = import inputs.nixpkgs {
+            inherit system;
+
+            overlays = [
+              inputs.self.overlays.tree-sitter-svelte
+            ];
+          };
+
           formatter = pkgs.nixfmt-tree;
           legacyPackages = {
             # Home configurations defined as legacy packages to allow having a default for all systems.
@@ -111,6 +124,7 @@
                       sops
                       stylix
                       tablet
+                      tree-sitter-nvim
                       wayland
                       wine
                       {
