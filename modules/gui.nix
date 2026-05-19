@@ -53,7 +53,7 @@
           in
           builtins.listToAttrs (
             map (name: {
-              name = ".mozilla/firefox/${name}/chrome/userChrome.css";
+              name = "${config.programs.firefox.configPath}/${name}/chrome/userChrome.css";
               value = {
                 text = lib.strings.concatLines (map (i: "@import \"${i}\";") imports);
               };
@@ -66,6 +66,7 @@
 
         programs.firefox = {
           enable = true;
+          configPath = "${config.xdg.configHome}/mozilla/firefox";
           profiles =
             let
               shared-profile = {
