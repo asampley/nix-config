@@ -188,6 +188,13 @@
     { config, ... }:
     {
       options.my.nextcloud = with lib; {
+        calendar = mkEnableOption "nextcloud calendar sync" // {
+          default = true;
+        };
+        contacts = mkEnableOption "nextcloud contacts sync" // {
+          default = true;
+        };
+
         passFile = mkOption {
           type = types.str;
           default = "${config.home.homeDirectory}/secrets/nextcloud";
@@ -198,6 +205,76 @@
           cfg = config.my.nextcloud;
         in
         {
+          accounts.calendar.accounts.asampley = lib.mkIf cfg.calendar {
+            local.path = "${config.xdg.dataHome}/calendar";
+            remote = {
+              type = "caldav";
+              url = "https://cloud.asampley.ca/remote.php/dav";
+              userName = "asampley";
+              passwordCommand = [
+                "cat"
+                "${cfg.passFile}"
+              ];
+            };
+            primary = true;
+            khal = {
+              enable = true;
+              type = "discover";
+            };
+            pimsync = {
+              enable = true;
+              extraPairDirectives = [
+                {
+                  name = "collections";
+                  params = [ "all" ];
+                }
+              ];
+            };
+          };
+
+          accounts.contact.accounts.asampley = lib.mkIf cfg.contacts {
+            local.path = "${config.xdg.dataHome}/contacts";
+            remote = {
+              type = "carddav";
+              url = "https://cloud.asampley.ca/remote.php/dav/addressbooks/users/asampley/contacts/";
+              userName = "asampley";
+              passwordCommand = [
+                "cat"
+                "${cfg.passFile}"
+              ];
+            };
+            pimsync = {
+              enable = true;
+              extraPairDirectives = [
+                {
+                  name = "collections";
+                  params = [ "all" ];
+                }
+              ];
+            };
+          };
+
+          # Sync calendar and contacts
+          services.pimsync.enable = lib.mkDefault (cfg.calendar || cfg.contacts);
+          programs.pimsync.enable = lib.mkDefault (cfg.calendar || cfg.contacts);
+
+          programs.khal = {
+            enable = lib.mkDefault cfg.calendar;
+            locale = {
+              dateformat = "%F";
+              datetimeformat = "%F %R";
+              longdateformat = "%F";
+              longdatetimeformat = "%F %R";
+              timeformat = "%R";
+            };
+            settings = {
+              default = {
+                default_calendar = "Personal";
+                timedelta = "7d";
+              };
+            };
+          };
+
           # rclone creates cached fuse mounts for webdav
           programs.rclone = {
             enable = true;
