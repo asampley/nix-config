@@ -1,4 +1,4 @@
-{ moduleWithSystem, ... }:
+{ self, moduleWithSystem, ... }:
 {
   flake.nixosModules.default = moduleWithSystem (
     { inputs', ... }:
@@ -25,7 +25,7 @@
       nix.registry.asampley = {
         to = {
           type = "path";
-          path = ../.;
+          path = toString self;
         };
       };
 
@@ -156,6 +156,12 @@
           "flakes"
         ];
         nix.settings.bash-prompt-prefix = "nix-env:";
+        nix.registry.asampley = {
+          to = {
+            type = "path";
+            path = toString self;
+          };
+        };
 
         nix.gc = {
           automatic = true;
