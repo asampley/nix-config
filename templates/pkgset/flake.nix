@@ -31,7 +31,7 @@
       );
 
       # Function to make cross aware package set like nixpkgs
-      # self contains a callPackage function like nixpkgs to support
+      # myPkgs contains a callPackage function like nixpkgs to support
       # all the cross compilation facilities built into nixpkgs.
       # in theory these can then be chained with multiple wrapping newScope
       # calls.
@@ -39,10 +39,11 @@
       # Is a function to allow consumers to use a different nixpkgs for cross compiling.
       lib.makePkgs =
         pkgs:
-        nix-pkgset.lib.makePackageSet "myPkgs" pkgs.newScope (self: {
+        nix-pkgset.lib.makePackageSet "pkgs" pkgs.newScope (myPkgs: {
           # Specify your packages here. They will have all cross compilation that nixpkgs has.
 
           default = pkgs.hello;
+          cross = (forAllSystems (crossSystem: self.lib.makePkgs (import nixpkgs { localSystem = pkgs.stdenv.buildPlatform; inherit crossSystem; })));
         });
     };
 }
