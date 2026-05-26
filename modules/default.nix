@@ -22,6 +22,13 @@
         "flakes"
       ];
 
+      nix.registry.asampley = {
+        to = {
+          type = "path";
+          path = ../.;
+        };
+      };
+
       # Don't forget to set a password with ‘passwd’.
       users.users.asampley = {
         isNormalUser = true;
