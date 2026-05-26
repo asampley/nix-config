@@ -22,7 +22,7 @@
             #my.emulation.enable = true;
             my.gaming.enable = true;
             my.gui.enable = true;
-            #my.http-file-share.enable = true;
+            my.http-file-share.enable = true;
 
             my.maintenance = {
               enable = true;
@@ -49,6 +49,11 @@
             boot.loader.efi.canTouchEfiVariables = true;
 
             networking.hostName = "miranda"; # Define your hostname.
+            services.avahi.publish = {
+              enable = true;
+              addresses = true;
+              userServices = true;
+            };
 
             # Configure keymap in X11
             services.xserver.xkb.layout = "us";
