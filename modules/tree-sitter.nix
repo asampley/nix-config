@@ -1,4 +1,9 @@
-{ self, lib, moduleWithSystem, ... }:
+{
+  self,
+  lib,
+  moduleWithSystem,
+  ...
+}:
 {
   perSystem =
     { pkgs, ... }:
