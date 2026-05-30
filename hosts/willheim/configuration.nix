@@ -209,6 +209,18 @@
                   '';
                 };
               };
+
+              "fileshare.asampley.ca" = {
+                forceSSL = true;
+                enableACME = true;
+                locations."/" = {
+                  root = "/var/www/";
+                  tryFiles = "$uri $uri/ =404";
+                  extraConfig = ''
+                    autoindex on;
+                  '';
+                };
+              };
             };
 
             services.rsnapshot.extraConfig = ''
