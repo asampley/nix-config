@@ -23,6 +23,11 @@
       inputs.systems.follows = "systems";
     };
 
+    kairometer = {
+      url = "github:asampley/kairometer";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     utf-nate = {
       url = "github:asampley/UTF-Nate";
       inputs.nixpkgs.follows = "nixpkgs";

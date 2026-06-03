@@ -92,7 +92,7 @@
             my.utf-nate.enable = true;
 
             my.xmpp.prosody = {
-              enable = true;
+              #enable = true;
               publicDomainName = "asampley.ca";
               openFirewall = true;
             };
@@ -219,6 +219,16 @@
                   extraConfig = ''
                     autoindex on;
                   '';
+                };
+              };
+
+              "kairometer.asampley.ca" = {
+                forceSSL = true;
+                enableACME = true;
+                locations."/" = {
+                  root = "${inputs'.kairometer.packages.default}";
+                  index = "index.html";
+		  tryFiles = "$uri $uri.html $uri/ =404";
                 };
               };
             };
