@@ -52,8 +52,8 @@
       config = lib.mkIf config.my.maintenance.notifications.enable {
         systemd.services.nixos-upgrade = {
           unitConfig = {
-            OnSuccess = [ "notify-on-success@nixos-upgrade.service" ];
-            OnFailure = [ "notify-on-failure@nixos-upgrade.service" ];
+            OnSuccess = [ "${config.my.notifications.on-success.name}@nixos-upgrade.service" ];
+            OnFailure = [ "${config.my.notifications.on-failure.name}@nixos-upgrade.service" ];
           };
         };
       };

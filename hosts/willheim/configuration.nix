@@ -8,7 +8,28 @@
   flake.nixosConfigurations.willheim = withSystem "x86_64-linux" (
     { inputs', ... }:
     self.inputs.nixpkgs.lib.nixosSystem {
-      modules = builtins.attrValues self.nixosModules ++ [
+      modules = with self.nixosModules; [
+        default
+        auto-certs
+        borgbackup
+        borgbackup-notifications
+        bittorrent
+        cloud
+        maintenance
+        maintenance-notifications
+        matrix
+        matrix-sops
+        nextcloud-sops
+        prometheus
+        prometheus-ntfy
+        prometheus-exporters-borg
+        notifications
+        ntfy-client-sops
+        ntfy-server
+        ntfy-server-sops
+        sops
+        utf-nate
+        xmpp
         self.inputs.sops-nix.nixosModules.sops
         (
           { config, pkgs, ... }:
@@ -228,7 +249,7 @@
                 locations."/" = {
                   root = "${inputs'.kairometer.packages.default}";
                   index = "index.html";
-		  tryFiles = "$uri $uri.html $uri/ =404";
+                  tryFiles = "$uri $uri.html $uri/ =404";
                 };
               };
             };

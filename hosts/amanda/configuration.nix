@@ -3,7 +3,23 @@
   flake.nixosConfigurations.amanda = withSystem "x86_64-linux" (
     { ... }:
     self.inputs.nixpkgs.lib.nixosSystem {
-      modules = builtins.attrValues self.nixosModules ++ [
+      modules = with self.nixosModules; [
+        default
+        audio
+        auto-certs
+        bluetooth
+        development
+        dynamic
+        gaming
+        gui
+        http-file-share
+        maintenance
+        maintenance-notifications
+        mobile
+        noise-reduce
+        notifications
+        oom
+        wayland
         self.inputs.sops-nix.nixosModules.sops
         (
           { pkgs, ... }:

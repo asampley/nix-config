@@ -171,6 +171,10 @@
           randomizedDelaySec = "45min";
         };
 
+        nixpkgs.config.permittedInsecurePackages = [
+          "electron-39.8.10"
+        ];
+
         # The home.packages option allows you to install Nix packages into your
         # environment.
         home.packages = with pkgs; [
@@ -263,11 +267,11 @@
 
         systemd.user.services.home-manager-auto-upgrade.Unit = {
           OnFailure = lib.mkIf (
-            config.systemd.user.services ? "notify-on-failure@"
-          ) "notify-on-failure@home-manager-auto-upgrade.service";
+            config.my ? "notifications"
+          ) "${config.my.notifications.on-failure.name}@home-manager-auto-upgrade.service";
           OnSuccess = lib.mkIf (
-            config.systemd.user.services ? "notify-on-success@"
-          ) "notify-on-success@home-manager-auto-upgrade.service";
+            config.my ? "notifications"
+          ) "${config.my.notifications.on-success.name}@home-manager-auto-upgrade.service";
         };
       };
     };

@@ -43,7 +43,17 @@
           # Specify your packages here. They will have all cross compilation that nixpkgs has.
 
           default = pkgs.hello;
-          cross = (forAllSystems (crossSystem: self.lib.makePkgs (import nixpkgs { localSystem = pkgs.stdenv.buildPlatform; inherit crossSystem; })));
+          cross = (
+            forAllSystems (
+              crossSystem:
+              self.lib.makePkgs (
+                import nixpkgs {
+                  localSystem = pkgs.stdenv.buildPlatform;
+                  inherit crossSystem;
+                }
+              )
+            )
+          );
         });
     };
 }

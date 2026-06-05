@@ -22,6 +22,7 @@
     {
       config,
       lib,
+      pkgs,
       ...
     }:
     {
@@ -35,8 +36,29 @@
         in
         lib.mkIf cfg.enable {
           # Make sure we use a wayland supported display manager
-          #services.displayManager.gdm.enable = true;
-          services.displayManager.ly.enable = true;
+          services.displayManager.ly = {
+            enable = true;
+            settings = {
+              full_color = false;
+              bg = "0x0000";
+              fg = "0x0008";
+              border_fg = "0x0008";
+              error_bg = "0x0000";
+              error_fg = "0x0001";
+
+              animation = "gameoflife";
+              gameoflife_fg = "0x0005";
+              gameoflife_frame_delay = 6;
+              gameoflife_entropy_interval = 10;
+
+              bigclock = "en";
+
+              default_input = "password";
+
+              vi_mode = true;
+              vi_default_mode = "insert";
+            };
+          };
 
           # Window manager which I haven't found a way yet to use home-manager
           programs.niri.enable = true;

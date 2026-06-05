@@ -1,11 +1,36 @@
-{ self, withSystem, ... }:
+{
+  self,
+  inputs,
+  withSystem,
+  ...
+}:
 {
   flake.nixosConfigurations.miranda = withSystem "x86_64-linux" (
     { ... }:
-    self.inputs.nixpkgs.lib.nixosSystem {
-      modules = builtins.attrValues self.nixosModules ++ [
-        self.inputs.nixos-hardware.nixosModules.framework-12-13th-gen-intel
-        self.inputs.sops-nix.nixosModules.sops
+    inputs.nixpkgs.lib.nixosSystem {
+      modules = with self.nixosModules; [
+        default
+        audio
+        bluetooth
+        development
+        dynamic
+        gaming
+        gui
+        http-file-share
+        maintenance
+        maintenance-notifications
+        mobile
+        noise-reduce
+        notifications
+        oom
+        power-saving
+        sops
+        stylix
+        wayland
+        zsa-keyboard
+        inputs.nixos-hardware.nixosModules.framework-12-13th-gen-intel
+        inputs.sops-nix.nixosModules.sops
+        inputs.stylix.nixosModules.stylix
         (
           { config, pkgs, ... }:
           {
@@ -40,8 +65,8 @@
             my.oom.enable = true;
             my.power-saving.enable = true;
             my.sops.enable = true;
+            my.stylix.enable = true;
             my.wayland.enable = true;
-            my.x.enable = false;
             my.zsa-keyboard.enable = true;
 
             # Use the systemd-boot EFI boot loader.

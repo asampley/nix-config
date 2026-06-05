@@ -7,6 +7,11 @@ let
       my.notifications = {
         enable = mkEnableOption "add notify-on-success and notify-on-failure systemd services";
         on-failure = {
+          name = mkOption {
+            type = str;
+            description = "name of the service before the asperand";
+            default = "notify-on-failure";
+          };
           script = mkOption {
             type = lines;
             description = "script to run on tasks with this failure task assigned";
@@ -15,6 +20,11 @@ let
           };
         };
         on-success = {
+          name = mkOption {
+            type = str;
+            description = "name of the service before the asperand";
+            default = "notify-on-success";
+          };
           script = mkOption {
             type = lines;
             description = "script to run on tasks with this failure task assigned";
@@ -130,11 +140,11 @@ in
             my.notifications.ntfy.authentication.user = lib.mkDefault "publish";
 
             systemd.services = lib.mkIf cfg.enable {
-              "notify-on-failure@" = {
+              "${cfg.on-failure.name}@" = {
                 unitConfig.Description = "runs a script notifying %i has failed";
                 serviceConfig.ExecStart = "${pkgs.writeShellScript "on-failure" cfg.on-failure.script} %i";
               };
-              "notify-on-success@" = {
+              "${cfg.on-success.name}@" = {
                 unitConfig.Description = "runs a script notifying %i has succeeded";
                 serviceConfig.ExecStart = "${pkgs.writeShellScript "on-success" cfg.on-success.script} %i";
               };
@@ -163,11 +173,11 @@ in
             my.notifications.ntfy.authentication.user = lib.mkDefault "${config.home.username}";
 
             systemd.user.services = lib.mkIf cfg.enable {
-              "notify-on-failure@" = {
+              "${cfg.on-failure.name}@" = {
                 Unit.Description = "runs a script notifying %i has failed";
                 Service.ExecStart = "${pkgs.writeShellScript "on-failure" cfg.on-failure.script} %i";
               };
-              "notify-on-success@" = {
+              "${cfg.on-success.name}@" = {
                 Unit.Description = "runs a script notifying %i has succeeded";
                 Service.ExecStart = "${pkgs.writeShellScript "on-success" cfg.on-success.script} %i";
               };
