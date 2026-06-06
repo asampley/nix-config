@@ -30,6 +30,7 @@
         zsa-keyboard
         inputs.nixos-hardware.nixosModules.framework-12-13th-gen-intel
         inputs.sops-nix.nixosModules.sops
+        inputs.base16.nixosModule
         inputs.stylix.nixosModules.stylix
         (
           { config, pkgs, ... }:

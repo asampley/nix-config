@@ -45,11 +45,14 @@
               border_fg = "0x0008";
               error_bg = "0x0001";
               error_fg = "0x0002";
-
-              animation = "gameoflife";
-              gameoflife_fg = "0x0005";
+              cmatrix_fg = "0x0003";
+              cmatrix_head_col = "0x0103";
+              gameoflife_fg = "0x0003";
               gameoflife_frame_delay = 6;
               gameoflife_entropy_interval = 10;
+
+
+              animation = "matrix";
 
               bigclock = "en";
 

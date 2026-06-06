@@ -16,11 +16,14 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    base16.url = "github:SenchoPens/base16.nix";
+
     # Unified style settings for many programs
     stylix = {
       url = "github:danth/stylix";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.systems.follows = "systems";
+	  inputs.base16.follows = "base16";
     };
 
     kairometer = {
@@ -96,6 +99,7 @@
                     inherit pkgs;
                     modules = with inputs.self.homeModules; [
                       inputs.stylix.homeModules.stylix
+                      inputs.base16.homeManagerModule
                       default
                       games
                       gui
@@ -117,6 +121,7 @@
                     modules = with inputs.self.homeModules; [
                       inputs.sops-nix.homeModules.sops
                       inputs.stylix.homeModules.stylix
+                      inputs.base16.homeManagerModule
                       default
                       games
                       gui

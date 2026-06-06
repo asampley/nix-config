@@ -468,6 +468,7 @@
     },
     "root": {
       "inputs": {
+        "base16": "base16",
         "firefox-addons": "firefox-addons",
         "firefox-csshacks": "firefox-csshacks",
         "flake-parts": "flake-parts",
@@ -523,7 +524,9 @@
     },
     "stylix": {
       "inputs": {
-        "base16": "base16",
+        "base16": [
+          "base16"
+        ],
         "base16-fish": "base16-fish",
         "base16-helix": "base16-helix",
         "base16-vim": "base16-vim",
