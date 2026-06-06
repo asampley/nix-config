@@ -40,11 +40,11 @@
             enable = true;
             settings = {
               full_color = false;
-              bg = "0x0000";
+              bg = "0x0001";
               fg = "0x0008";
               border_fg = "0x0008";
-              error_bg = "0x0000";
-              error_fg = "0x0001";
+              error_bg = "0x0001";
+              error_fg = "0x0002";
 
               animation = "gameoflife";
               gameoflife_fg = "0x0005";
