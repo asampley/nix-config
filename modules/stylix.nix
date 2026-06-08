@@ -6,9 +6,9 @@
         r = lib.fromHexString (builtins.substring 0 2 c);
         g = lib.fromHexString (builtins.substring 2 2 c);
         b = lib.fromHexString (builtins.substring 4 2 c);
-        brighten = b: c: c + (255 - c) * b;
+        bf = c: c + (255 - c) * brighten;
       in
-        lib.strings.concatMapStrings (c: lib.toHexString (builtins.floor (brighten 0.5 c))) [r g b];
+        lib.strings.concatMapStrings (c: lib.toHexString (builtins.floor (bf c))) [r g b];
   };
 
   flake.nixosModules.stylix =
@@ -31,7 +31,7 @@
           override =
             let
               base-scheme = config.lib.base16.mkSchemeAttrs config.stylix.base16Scheme;
-              bh = self.lib.color.brighten-hex 0.5;
+              bh = self.lib.color.brighten-hex 0.1;
             in
             # Augment to base-24
             {
@@ -92,7 +92,7 @@
         stylix.override =
           let
             base-scheme = config.lib.base16.mkSchemeAttrs config.stylix.base16Scheme;
-            bh = self.lib.color.brighten-hex 0.5;
+            bh = self.lib.color.brighten-hex 0.1;
           in
           # Augment to base-24
           {
