@@ -29,6 +29,7 @@
         ntfy-server-sops
         sops
         utf-nate
+        wireguard
         xmpp
         self.inputs.sops-nix.nixosModules.sops
         (
@@ -78,6 +79,8 @@
                 };
               };
             };
+
+            my.wireguard.enable = true;
 
             services.prometheus.exporters.node.enable = true;
             services.prometheus.exporters.borg = {
