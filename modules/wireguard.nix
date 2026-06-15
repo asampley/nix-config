@@ -5,6 +5,7 @@
     {
       options.my.wireguard = with lib; {
         enable = mkEnableOption "wireguard peer settings";
+        openFirewall = mkEnableOption "open firewall for receiving initial connections";
       };
 
       config =
@@ -17,11 +18,13 @@
             };
             "willheim" = rec {
               index = 1;
-              listenPort = 51820;
+              listenPort = 55820;
               endpoint = "asampley.ca:${toString listenPort}";
               publicKey = "fp6yv+ur1tO/J76yIE9HcU0CMUpOa7WNO6jNIs8MUiM=";
             };
           };
+          local = addressMap.${config.networking.hostName};
+          others = lib.filterAttrs (name: _: name != config.networking.hostName) addressMap;
         in
         lib.mkIf cfg.enable {
           environment.systemPackages = with pkgs; [
@@ -30,7 +33,6 @@
 
           networking.wg-quick.interfaces =
             let
-              local = addressMap.${config.networking.hostName};
             in
             {
               wg0 = {
@@ -43,9 +45,26 @@
                   publicKey = host.publicKey;
                   presharedKeyFile = "/etc/wireguard/presharedkey";
                   allowedIPs = map (a: "${a}/32") host.address;
-                }) (builtins.attrValues (lib.filterAttrs (name: _: name != config.networking.hostName) addressMap));
+                }) (builtins.attrValues others);
               };
             };
+
+            networking.firewall.allowedUDPPorts = lib.mkIf cfg.openFirewall [ local.listenPort ];
+
+            networking.hosts = builtins.zipAttrsWith
+              (_: values: values)
+              (builtins.attrValues
+                (builtins.mapAttrs
+                  (name: v:
+                    builtins.listToAttrs
+                    (map
+                      (address: { name = address; value = "wg.${name}.local"; })
+                      v.address
+                    )
+                  )
+                  others
+                )
+              );
         };
     };
 }

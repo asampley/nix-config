@@ -80,7 +80,10 @@
               };
             };
 
-            my.wireguard.enable = true;
+            my.wireguard = {
+              enable = true;
+              openFirewall = true;
+            };
 
             services.prometheus.exporters.node.enable = true;
             services.prometheus.exporters.borg = {
