@@ -23,7 +23,7 @@
       url = "github:danth/stylix";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.systems.follows = "systems";
-	  inputs.base16.follows = "base16";
+      inputs.base16.follows = "base16";
     };
 
     kairometer = {

@@ -51,7 +51,6 @@
               gameoflife_frame_delay = 6;
               gameoflife_entropy_interval = 10;
 
-
               animation = "matrix";
 
               bigclock = "en";

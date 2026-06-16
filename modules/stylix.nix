@@ -1,14 +1,19 @@
 { self, lib, ... }:
 {
   flake.lib = {
-    color.brighten-hex = brighten: c: 
+    color.brighten-hex =
+      brighten: c:
       let
         r = lib.fromHexString (builtins.substring 0 2 c);
         g = lib.fromHexString (builtins.substring 2 2 c);
         b = lib.fromHexString (builtins.substring 4 2 c);
         bf = c: c + (255 - c) * brighten;
       in
-        lib.strings.concatMapStrings (c: lib.toHexString (builtins.floor (bf c))) [r g b];
+      lib.strings.concatMapStrings (c: lib.toHexString (builtins.floor (bf c))) [
+        r
+        g
+        b
+      ];
   };
 
   flake.nixosModules.stylix =
