@@ -38,9 +38,9 @@
         ]
         ++ lib.optional config.services.nginx.enable "nginx"
         ++ lib.optional config.virtualisation.docker.enable "docker";
-        openssh.authorizedKeys.keys = [
-          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGDHPkbNhmExKEsUQ9gn+IzYzRhnG49Q+rwZ/S+mascf asampley@amanda"
-          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDDtgero+Wbw7kq/5t8ylM+tUnRh1o0ca1jTrh9r32PS asampley@miranda"
+        openssh.authorizedKeys.keyFiles = [
+          ../hosts/amanda/ssh.pub
+          ../hosts/miranda/ssh.pub
         ];
       };
 
