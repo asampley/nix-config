@@ -53,6 +53,11 @@
       flake = false;
     };
 
+    battle-net = {
+      url = "file+https://downloader.battle.net//download/getInstallerForGame?os=win&gameProgram=BATTLENET_APP&version=Live";
+      flake = false;
+    };
+
     tree-sitter-svelte = {
       url = "github:tree-sitter-grammars/tree-sitter-svelte";
       flake = false;

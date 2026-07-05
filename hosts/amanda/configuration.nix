@@ -20,6 +20,7 @@
         notifications
         oom
         wayland
+        x
         self.inputs.sops-nix.nixosModules.sops
         (
           { pkgs, ... }:
@@ -53,6 +54,7 @@
 
             my.oom.enable = true;
             my.wayland.enable = true;
+            my.x.enable = true;
 
             # Open http ports for file share
             networking.firewall.allowedTCPPorts = [ 80 ];

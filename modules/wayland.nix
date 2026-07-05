@@ -64,6 +64,7 @@
 
           # Window manager which I haven't found a way yet to use home-manager
           programs.niri.enable = true;
+          #programs.hyprland.enable = true;
         };
     };
 
