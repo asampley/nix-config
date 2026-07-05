@@ -1,1 +1,5 @@
-/hardware-configuration.nix
+# nix default path when building
+result
+
+# vm storage file when testing as vms
+*.qcow2
