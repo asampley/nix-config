@@ -28,6 +28,7 @@
         stylix
         wayland
         wireguard
+        x
         zsa-keyboard
         inputs.nixos-hardware.nixosModules.framework-12-13th-gen-intel
         inputs.sops-nix.nixosModules.sops
@@ -70,6 +71,7 @@
             my.stylix.enable = true;
             my.wayland.enable = true;
             my.wireguard.enable = true;
+            my.x.enable = true;
             my.zsa-keyboard.enable = true;
 
             # Use the systemd-boot EFI boot loader.

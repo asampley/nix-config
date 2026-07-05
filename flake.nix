@@ -142,6 +142,7 @@
                       tree-sitter-nvim
                       wayland
                       wine
+                      x
                       {
                         config.my.tablet.niri = true;
                         config.my.notifications = {
