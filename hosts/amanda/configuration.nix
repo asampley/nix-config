@@ -1,8 +1,13 @@
-{ self, withSystem, ... }:
+{
+  self,
+  inputs,
+  withSystem,
+  ...
+}:
 {
   flake.nixosConfigurations.amanda = withSystem "x86_64-linux" (
     { ... }:
-    self.inputs.nixpkgs.lib.nixosSystem {
+    inputs.nixpkgs.lib.nixosSystem {
       modules = with self.nixosModules; [
         default
         audio
@@ -19,9 +24,12 @@
         noise-reduce
         notifications
         oom
+        stylix
         wayland
         x
-        self.inputs.sops-nix.nixosModules.sops
+        inputs.base16.nixosModule
+        inputs.sops-nix.nixosModules.sops
+        inputs.stylix.nixosModules.stylix
         (
           { pkgs, ... }:
           {
@@ -53,6 +61,7 @@
             };
 
             my.oom.enable = true;
+            my.stylix.enable = true;
             my.wayland.enable = true;
             my.x.enable = true;
 
