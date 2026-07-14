@@ -3,5 +3,5 @@
   myPackage,
 }:
 mkShell {
-  withInputsFrom = myPackage;
+  withInputsFrom = [ myPackage ];
 }
