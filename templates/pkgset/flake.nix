@@ -30,6 +30,11 @@
         system: nixpkgs.lib.filterAttrs (_: nixpkgs.lib.isDerivation) self.legacyPackages.${system}
       );
 
+      # Expose dev shells where build == host. Leave as is
+      devShells = forAllSystems (system: {
+        default = (self.lib.makePkgs nixpkgs.legacyPackages.${system}).callPackage nix/shell.nix { };
+      });
+
       # Function to make cross aware package set like nixpkgs
       # myPkgs contains a callPackage function like nixpkgs to support
       # all the cross compilation facilities built into nixpkgs.
@@ -41,8 +46,11 @@
         pkgs:
         nix-pkgset.lib.makePackageSet "pkgs" pkgs.newScope (myPkgs: {
           # Specify your packages here. They will have all cross compilation that nixpkgs has.
+          # These can be build using flakes like `nix build .#cross.<crossSystem>.myPackage
 
-          default = pkgs.hello;
+          default = myPkgs.myPackage;
+          myPackage = myPkgs.callPackage nix/package.nix { };
+
           cross = (
             forAllSystems (
               crossSystem:
