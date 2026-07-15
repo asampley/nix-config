@@ -15,8 +15,10 @@
       ...
     }:
     let
-      # Systems to produce flake outputs for
+      # List of systems to produce flake outputs for
       forBuildSystems = nixpkgs.lib.genAttrs nixpkgs.lib.systems.flakeExposed;
+      # List of systems to produce cross outputs for
+      # Not all of these will work, might be best to add your own triples.
       forHostSystems = nixpkgs.lib.genAttrs nixpkgs.lib.systems.doubles.all;
     in
     {
