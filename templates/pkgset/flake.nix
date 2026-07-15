@@ -16,22 +16,23 @@
     }:
     let
       # Systems to produce flake outputs for
-      forAllSystems = nixpkgs.lib.genAttrs nixpkgs.lib.systems.flakeExposed;
+      forBuildSystems = nixpkgs.lib.genAttrs nixpkgs.lib.systems.flakeExposed;
+      forHostSystems = nixpkgs.lib.genAttrs nixpkgs.lib.systems.doubles.all;
     in
     {
       # Nix formatter, called by nix fmt, change to whatever you'd like.
-      formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt-tree);
+      formatter = forBuildSystems (system: nixpkgs.legacyPackages.${system}.nixfmt-tree);
 
       # Exposes packages that are defined in makePkgs. Leave as is.
-      legacyPackages = forAllSystems (system: self.lib.makePkgs nixpkgs.legacyPackages.${system});
+      legacyPackages = forBuildSystems (system: self.lib.makePkgs nixpkgs.legacyPackages.${system});
 
       # Expose packages where build == host. Leave as is.
-      packages = forAllSystems (
+      packages = forBuildSystems (
         system: nixpkgs.lib.filterAttrs (_: nixpkgs.lib.isDerivation) self.legacyPackages.${system}
       );
 
       # Expose dev shells where build == host. Leave as is
-      devShells = forAllSystems (system: {
+      devShells = forBuildSystems (system: {
         default = (self.lib.makePkgs nixpkgs.legacyPackages.${system}).callPackage nix/shell.nix { };
       });
 
@@ -52,7 +53,7 @@
           myPackage = myPkgs.callPackage nix/package.nix { };
 
           cross = (
-            forAllSystems (
+            forHostSystems (
               crossSystem:
               self.lib.makePkgs (
                 import nixpkgs {
