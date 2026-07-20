@@ -5,7 +5,14 @@
       set -eux
       export WINEPREFIX=$HOME/.wine-nix/battle-net
       export WINEARCH=win64
-      export PATH=${lib.makeBinPath [ pkgs.wineWow64Packages.staging pkgs.findutils pkgs.cabextract pkgs.zstd ]}
+      export PATH=${
+        lib.makeBinPath [
+          pkgs.wineWow64Packages.staging
+          pkgs.findutils
+          pkgs.cabextract
+          pkgs.zstd
+        ]
+      }
       ${pkgs.winetricks}/bin/winetricks corefonts dxvk ucrtbase2019
       wine ${self.inputs.battle-net}
     '';

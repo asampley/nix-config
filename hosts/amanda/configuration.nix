@@ -107,7 +107,8 @@
             # This makes freeing VRAM more aggressive for named applications.
             # https://github.com/NVIDIA/egl-wayland/issues/126#issuecomment-2379945259
             # https://niri-wm.github.io/niri/Nvidia.html#high-vram-usage-fix
-            environment.etc."nvidia/nvidia-application-profiles-rc.d/50-limit-free-buffer-pool-in-wayland-compositors.json".source = ../../files/nvidia/nvidia-application-profiles-rc.d/50-limit-free-buffer-pool-in-wayland-compositors.json;
+            environment.etc."nvidia/nvidia-application-profiles-rc.d/50-limit-free-buffer-pool-in-wayland-compositors.json".source =
+              ../../files/nvidia/nvidia-application-profiles-rc.d/50-limit-free-buffer-pool-in-wayland-compositors.json;
 
             # This option defines the first version of NixOS you have installed on this particular machine,
             # and is used to maintain compatibility with application data (e.g. databases) created on older NixOS versions.

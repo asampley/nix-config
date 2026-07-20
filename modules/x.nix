@@ -34,7 +34,9 @@
     }:
     {
       options.my.x = with lib; {
-        enable = mkEnableOption "x11 configuration" // { default = true; };
+        enable = mkEnableOption "x11 configuration" // {
+          default = true;
+        };
         xinit = mkEnableOption "xinit startup files instead of a display manager option";
       };
 
