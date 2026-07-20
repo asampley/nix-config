@@ -13,7 +13,8 @@
 
       config = lib.mkIf config.my.mobile.enable {
         environment.systemPackages = with pkgs; [
-          jmtpfs
+          # Removed as unmaintained
+          #jmtpfs
         ];
       };
     };
