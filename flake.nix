@@ -62,6 +62,8 @@
       url = "github:tree-sitter-grammars/tree-sitter-svelte";
       flake = false;
     };
+
+    foundry-vtt.url = "github:reckenrode/nix-foundryvtt";
   };
 
   outputs =

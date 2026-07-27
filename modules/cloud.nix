@@ -44,7 +44,7 @@
 
               https = cfg.nextcloud.https;
 
-              package = pkgs.nextcloud33;
+              package = pkgs.nextcloud34;
               hostName = "${cfg.nextcloud.hostName}";
 
               extraAppsEnable = true;

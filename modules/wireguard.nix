@@ -22,17 +22,26 @@
                 }
               )
               {
-                "miranda" = {
-                  index = 2;
-                };
                 "willheim" = rec {
                   index = 1;
                   listenPort = 55820;
                   endpoint = "asampley.ca:${toString listenPort}";
+                  peers = [
+                    "miranda"
+                    "adam"
+                  ];
+                };
+                "miranda" = {
+                  index = 2;
+                  peers = [ "willheim" ];
+                };
+                "adam" = {
+                  index = 192;
+                  peers = [ "willheim" ];
                 };
               };
           local = addressMap.${config.networking.hostName};
-          others = lib.filterAttrs (name: _: name != config.networking.hostName) addressMap;
+          others = lib.filterAttrs (name: _: builtins.any (n: n == name) local.peers) addressMap;
         in
         lib.mkIf cfg.enable {
           environment.systemPackages = with pkgs; [

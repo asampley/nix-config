@@ -29,20 +29,7 @@
         };
       };
 
-      # Don't forget to set a password with ‘passwd’.
-      users.users.asampley = {
-        isNormalUser = true;
-        extraGroups = [
-          "wheel"
-          "plugdev"
-        ]
-        ++ lib.optional config.services.nginx.enable "nginx"
-        ++ lib.optional config.virtualisation.docker.enable "docker";
-        openssh.authorizedKeys.keyFiles = [
-          ../hosts/amanda/ssh.pub
-          ../hosts/miranda/ssh.pub
-        ];
-      };
+      my.users.asampley.enable = lib.mkDefault true;
 
       nixpkgs.config.allowUnfreePredicate =
         pkg:
