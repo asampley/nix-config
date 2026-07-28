@@ -26,6 +26,7 @@
         power-saving
         sops
         stylix
+        users
         wayland
         wireguard
         x

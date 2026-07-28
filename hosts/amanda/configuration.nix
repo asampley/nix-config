@@ -25,6 +25,7 @@
         notifications
         oom
         stylix
+        users
         wayland
         x
         inputs.base16.nixosModule
