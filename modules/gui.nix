@@ -16,6 +16,8 @@
         environment.systemPackages = with pkgs; [
           firefox
         ];
+
+        hardware.flipperzero.enable = true;
       };
     };
 
@@ -29,6 +31,7 @@
     {
       config = {
         home.packages = with pkgs; [
+          appimage-run
           bitwarden-desktop
           chromium
           dconf
