@@ -254,10 +254,10 @@
 
         systemd.user.services.home-manager-auto-upgrade.Unit = {
           OnFailure = lib.mkIf (
-            config.my ? "notifications"
+            config ? "my" && config.my ? "notifications"
           ) "${config.my.notifications.on-failure.name}@home-manager-auto-upgrade.service";
           OnSuccess = lib.mkIf (
-            config.my ? "notifications"
+            config ? "my" && config.my ? "notifications"
           ) "${config.my.notifications.on-success.name}@home-manager-auto-upgrade.service";
         };
       };

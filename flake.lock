@@ -68,7 +68,7 @@
         "type": "github"
       }
     },
-    "battle-net": {
+    "battle-net-installer-input": {
       "flake": false,
       "locked": {
         "narHash": "sha256-YYmbwLZbsYGD2819S9lRBKHFtzRZgLilVNavaczpIo4=",
@@ -382,6 +382,26 @@
     "nix-pkgset": {
       "inputs": {
         "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1742367519,
+        "narHash": "sha256-0EzhVYhXDFNyM2NSFaKXj424EjKUbHo9nAj7QskRnHE=",
+        "owner": "szlend",
+        "repo": "nix-pkgset",
+        "rev": "60e06913b0d15b4c35534a070de109cd413038c8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "szlend",
+        "repo": "nix-pkgset",
+        "type": "github"
+      }
+    },
+    "nix-pkgset_2": {
+      "inputs": {
+        "nixpkgs": [
           "utf-nate",
           "nixpkgs"
         ]
@@ -538,7 +558,7 @@
     "root": {
       "inputs": {
         "base16": "base16",
-        "battle-net": "battle-net",
+        "battle-net-installer-input": "battle-net-installer-input",
         "firefox-addons": "firefox-addons",
         "firefox-csshacks": "firefox-csshacks",
         "flake-parts": "flake-parts",
@@ -547,6 +567,7 @@
         "import-tree": "import-tree",
         "kairometer": "kairometer",
         "nix-alien": "nix-alien",
+        "nix-pkgset": "nix-pkgset",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_4",
         "sops-nix": "sops-nix",
@@ -738,7 +759,7 @@
     },
     "utf-nate": {
       "inputs": {
-        "nix-pkgset": "nix-pkgset",
+        "nix-pkgset": "nix-pkgset_2",
         "nixpkgs": [
           "nixpkgs"
         ],

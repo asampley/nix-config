@@ -1,30 +1,5 @@
 { lib, moduleWithSystem, ... }:
 {
-  perSystem =
-    { config, pkgs, ... }:
-    {
-      packages = {
-        borg-exporter = pkgs.rustPlatform.buildRustPackage (finalAttrs: rec {
-          pname = "borg-exporter";
-          version = "0.1.1";
-
-          src = pkgs.fetchgit {
-            #url = "https://github.com/asampley/borg-exporter.git";
-            #rev = "de38a83c37c57158335c9fd2566eea9fe0bdebb6";
-            #hash = "sha256-RIwcj8J37ixmP0aZLDUjImL3DRo9FhLDuXQECbRZVkU=";
-            url = "https://codeberg.org/mmakowski/borg-exporter.git";
-            rev = "6f25798e13e7e9b327068119ed9d28ab7defa64e";
-            hash = "sha256-Zzw61PfSYwb0EUbnvZyck1quN6/+vjOpCpwXsMfIe5I=";
-          };
-
-          cargoLock.lockFile = "${finalAttrs.src}/Cargo.lock";
-
-          buildInputs = [ pkgs.makeWrapper ];
-          postInstall = "wrapProgram $out/bin/${pname} --prefix PATH : ${pkgs.borgbackup}/bin";
-        });
-      };
-    };
-
   flake.nixosModules.prometheus =
     { config, ... }:
     {

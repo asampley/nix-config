@@ -1,28 +1,9 @@
 { moduleWithSystem, ... }:
 {
-  perSystem =
-    { pkgs, ... }:
-    {
-      packages = with pkgs; {
-        monitors-power = (
-          writeShellScriptBin "monitors-power" (builtins.readFile ../scripts/wayland/monitors-power)
-        );
-        fuzzel-power-menu = (
-          writeShellScriptBin "fuzzel-power-menu" (builtins.readFile ../scripts/wayland/fuzzel-power-menu)
-        );
-        niri-fuzzel-monitor-orientation = (
-          writeShellScriptBin "niri-fuzzel-monitor-orientation" (
-            builtins.readFile ../scripts/wayland/niri-fuzzel-monitor-orientation
-          )
-        );
-      };
-    };
-
   flake.nixosModules.wayland =
     {
       config,
       lib,
-      pkgs,
       ...
     }:
     {

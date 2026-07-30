@@ -1,11 +1,5 @@
 { lib, moduleWithSystem, ... }:
 {
-  perSystem =
-    { pkgs, ... }:
-    {
-      packages.docker = (pkgs.writeShellScriptBin "docker" "exec -a $0 ${pkgs.podman}/bin/podman \"$@\"");
-    };
-
   flake.nixosModules.development =
     {
       config,
