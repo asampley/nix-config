@@ -68,7 +68,10 @@
       flake = false;
     };
 
-    foundry-vtt.url = "github:reckenrode/nix-foundryvtt";
+    foundry-vtt = {
+      url = "github:reckenrode/nix-foundryvtt";
+      #inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
