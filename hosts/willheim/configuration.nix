@@ -270,12 +270,8 @@
                 enableACME = true;
                 locations."/" = {
                   proxyPass = "http://localhost:${toString config.services.foundryvtt.port}";
+                  proxyWebsockets = true;
                   recommendedProxySettings = true;
-
-                  extraConfig = ''
-                    proxy_set_header Upgrade $http_upgrade;
-                    proxy_set_header Connection "upgrade";
-                  '';
                 };
               };
 
@@ -284,12 +280,8 @@
                 enableACME = true;
                 locations."/" = {
                   proxyPass = "http://192.168.4.192:30000";
+                  proxyWebsockets = true;
                   recommendedProxySettings = true;
-
-                  extraConfig = ''
-                    proxy_set_header Upgrade $http_upgrade;
-                    proxy_set_header Connection "upgrade";
-                  '';
                 };
               };
             };

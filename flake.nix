@@ -96,29 +96,29 @@
         home-manager.flakeModules.home-manager
         (import-tree ./modules)
         (import-tree ./config-modules)
-        ((import-tree.filter (p: nixpkgs.lib.baseNameOf p != "hardware-configuration.nix"))
-          ./hosts
-        )
+        ((import-tree.filter (p: nixpkgs.lib.baseNameOf p != "hardware-configuration.nix")) ./hosts)
       ];
       systems = import ./systems.nix;
       flake = {
-          # Function to make cross aware package set like nixpkgs
-          # myPkgs contains a callPackage function like nixpkgs to support
-          # all the cross compilation facilities built into nixpkgs.
-          # in theory these can then be chained with multiple wrapping newScope
-          # calls.
-          #
-          # Is a function to allow consumers to use a different nixpkgs for cross compiling.
-          lib = {
-            makePkgs =
-              pkgs:
-              nix-pkgset.lib.makePackageSet "pkgs" pkgs.newScope (myPkgs: 
-                nixpkgs.lib.filesystem.packagesFromDirectoryRecursive {
-                  inherit (myPkgs) callPackage;
-                  directory = ./packages;
-                } // {
-                  inherit (inputs) battle-net-installer-input;
-                  cross = (
+        # Function to make cross aware package set like nixpkgs
+        # myPkgs contains a callPackage function like nixpkgs to support
+        # all the cross compilation facilities built into nixpkgs.
+        # in theory these can then be chained with multiple wrapping newScope
+        # calls.
+        #
+        # Is a function to allow consumers to use a different nixpkgs for cross compiling.
+        lib = {
+          makePkgs =
+            pkgs:
+            nix-pkgset.lib.makePackageSet "pkgs" pkgs.newScope (
+              myPkgs:
+              nixpkgs.lib.filesystem.packagesFromDirectoryRecursive {
+                inherit (myPkgs) callPackage;
+                directory = ./packages;
+              }
+              // {
+                inherit (inputs) battle-net-installer-input;
+                cross = (
                   forHostSystems (
                     crossSystem:
                     self.lib.makePkgs (
@@ -161,78 +161,75 @@
 
           packages = nixpkgs.lib.filterAttrs (_: nixpkgs.lib.isDerivation) self.legacyPackages.${system};
 
-          legacyPackages = self.lib.makePkgs nixpkgs.legacyPackages.${system} //
-          {
+          legacyPackages = self.lib.makePkgs nixpkgs.legacyPackages.${system} // {
             # Home configurations defined as legacy packages to allow having a default for all systems.
             #
             # Currently it seemse like legacyPackages is checked first for a valid configuration, so all must be here.
-            homeConfigurations =
-              builtins.mapAttrs (_: value: home-manager.lib.homeManagerConfiguration value)
-                {
-                  "asampley" = {
-                    inherit pkgs;
-                    modules = with self.homeModules; [
-                      default
-                    ];
-                  };
-                  "asampley@amanda" = {
-                    inherit pkgs;
-                    modules = with self.homeModules; [
-                      inputs.stylix.homeModules.stylix
-                      base16.homeManagerModule
-                      default
-                      games
-                      gui
-                      notifications
-                      podman
-                      stylix
-                      wayland
-                      wine
-                      {
-                        config.my.notifications = {
-                          enable = true;
-                          libnotify.enable = true;
-                        };
-                      }
-                    ];
-                  };
-                  "asampley@miranda" = {
-                    inherit pkgs;
-                    modules = with self.homeModules; [
-                      sops-nix.homeModules.sops
-                      inputs.stylix.homeModules.stylix
-                      base16.homeManagerModule
-                      default
-                      games
-                      gui
-                      nextcloud
-                      nextcloud-sops
-                      notifications
-                      ntfy-client-sops
-                      podman
-                      sc-controller
-                      sops
-                      stylix
-                      tablet
-                      tree-sitter-nvim
-                      wayland
-                      wine
-                      x
-                      {
-                        config.my.tablet.niri = true;
-                        config.my.notifications = {
-                          enable = true;
-                          libnotify.enable = true;
-                          ntfy = {
-                            enable = true;
-                            address = "https://ntfy.asampley.ca";
-                            sops.enable = true;
-                          };
-                        };
-                      }
-                    ];
-                  };
-                };
+            homeConfigurations = builtins.mapAttrs (_: value: home-manager.lib.homeManagerConfiguration value) {
+              "asampley" = {
+                inherit pkgs;
+                modules = with self.homeModules; [
+                  default
+                ];
+              };
+              "asampley@amanda" = {
+                inherit pkgs;
+                modules = with self.homeModules; [
+                  inputs.stylix.homeModules.stylix
+                  base16.homeManagerModule
+                  default
+                  games
+                  gui
+                  notifications
+                  podman
+                  stylix
+                  wayland
+                  wine
+                  {
+                    config.my.notifications = {
+                      enable = true;
+                      libnotify.enable = true;
+                    };
+                  }
+                ];
+              };
+              "asampley@miranda" = {
+                inherit pkgs;
+                modules = with self.homeModules; [
+                  sops-nix.homeModules.sops
+                  inputs.stylix.homeModules.stylix
+                  base16.homeManagerModule
+                  default
+                  games
+                  gui
+                  nextcloud
+                  nextcloud-sops
+                  notifications
+                  ntfy-client-sops
+                  podman
+                  sc-controller
+                  sops
+                  stylix
+                  tablet
+                  tree-sitter-nvim
+                  wayland
+                  wine
+                  x
+                  {
+                    config.my.tablet.niri = true;
+                    config.my.notifications = {
+                      enable = true;
+                      libnotify.enable = true;
+                      ntfy = {
+                        enable = true;
+                        address = "https://ntfy.asampley.ca";
+                        sops.enable = true;
+                      };
+                    };
+                  }
+                ];
+              };
+            };
           };
         };
     });

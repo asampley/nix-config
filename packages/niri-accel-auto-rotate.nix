@@ -3,7 +3,7 @@
   iio-sensor-proxy,
   writeShellScriptBin,
 }:
- writeShellScriptBin "niri-accel-auto-rotate" ''
+writeShellScriptBin "niri-accel-auto-rotate" ''
   ${iio-sensor-proxy}/bin/monitor-sensor --accel\
     | ${gnused}/bin/sed -u -n '
       /Accelerometer orientation changed/!d;
