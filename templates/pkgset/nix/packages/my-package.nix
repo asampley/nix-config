@@ -7,11 +7,11 @@ stdenv.mkDerivation {
   src =
     with lib.fileset;
     toSource {
-      root = ../.;
-      fileset = difference ../. (unions [
-        ../flake.nix
-        ../nix
-        (maybeMissing ../flake.lock)
+      root = ../..;
+      fileset = difference ../.. (unions [
+        ../../flake.nix
+        ../../nix
+        (maybeMissing ../../flake.lock)
       ]);
     };
 

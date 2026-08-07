@@ -47,24 +47,28 @@
       # Is a function to allow consumers to use a different nixpkgs for cross compiling.
       lib.makePkgs =
         pkgs:
-        nix-pkgset.lib.makePackageSet "pkgs" pkgs.newScope (myPkgs: {
-          # Specify your packages here. They will have all cross compilation that nixpkgs has.
+        nix-pkgset.lib.makePackageSet "pkgs" pkgs.newScope (
+          myPkgs:
+          # Put your packages in nix/packages. They will have all cross compilation that nixpkgs has.
           # These can be build using flakes like `nix build .#cross.<crossSystem>.myPackage
-
-          default = myPkgs.myPackage;
-          myPackage = myPkgs.callPackage nix/package.nix { };
-
-          cross = (
-            forHostSystems (
-              crossSystem:
-              self.lib.makePkgs (
-                import nixpkgs {
-                  localSystem = pkgs.stdenv.buildPlatform;
-                  inherit crossSystem;
-                }
+          nixpkgs.lib.filesystem.packagesFromDirectoryRecursive {
+            inherit (myPkgs) callPackage;
+            directory = ./nix/packages;
+          }
+          // {
+            default = myPkgs.my-package;
+            cross = (
+              forHostSystems (
+                crossSystem:
+                self.lib.makePkgs (
+                  import nixpkgs {
+                    localSystem = pkgs.stdenv.buildPlatform;
+                    inherit crossSystem;
+                  }
+                )
               )
-            )
-          );
-        });
+            );
+          }
+        );
     };
 }

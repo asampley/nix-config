@@ -1,7 +1,7 @@
 {
   mkShell,
-  myPackage,
+  my-package,
 }:
 mkShell {
-  inputsFrom = [ myPackage ];
+  inputsFrom = [ my-package ];
 }
