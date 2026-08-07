@@ -10,6 +10,9 @@
     inputs.nixpkgs.lib.nixosSystem {
       modules = with self.nixosModules; [
         default
+
+        asampley
+
         audio
         bluetooth
         development
@@ -26,7 +29,6 @@
         power-saving
         sops
         stylix
-        users
         wayland
         wireguard
         x

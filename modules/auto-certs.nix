@@ -26,7 +26,7 @@
                 map (name: {
                   inherit name;
                   value = { };
-                }) (builtins.filter (name: hosts."${name}".enableACME == true) (builtins.attrNames hosts))
+                }) (builtins.filter (name: hosts."${name}".enableACME) (builtins.attrNames hosts))
               );
           };
         };

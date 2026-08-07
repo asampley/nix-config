@@ -96,6 +96,7 @@
         home-manager.flakeModules.home-manager
         (import-tree ./modules)
         (import-tree ./config-modules)
+        (import-tree ./users)
         ((import-tree.filter (p: nixpkgs.lib.baseNameOf p != "hardware-configuration.nix")) ./hosts)
       ];
       systems = import ./systems.nix;
@@ -154,6 +155,7 @@
 
             overlays = [
               self.overlays.tree-sitter-svelte
+              self.overlays.sc-controller
             ];
           };
 

@@ -1,27 +1,27 @@
-{ lib, moduleWithSystem, ... }:
 {
-  perSystem =
-    { pkgs, ... }:
-    {
-      packages.sc-controller = pkgs.sc-controller.overrideAttrs (
-        final: prev: {
-          # Seems required for loading bluetooth
-          postFixup = prev.postFixup + ''
-            wrapProgram $out/bin/scc-daemon --set PATH ${with pkgs; lib.makeBinPath [ binutils ]}
-          '';
-        }
-      );
-    };
+  lib,
+  ...
+}:
+{
+  flake.overlays.sc-controller = final: prev: {
+    sc-controller = prev.sc-controller.overrideAttrs (
+      final-pkg: prev-pkg: {
+        # Seems required for loading bluetooth
+        postFixup = prev-pkg.postFixup + ''
+          wrapProgram $out/bin/scc-daemon --set PATH ${lib.makeBinPath [ final.binutils ]}
+        '';
+      }
+    );
+  };
 
-  flake.homeModules.sc-controller = moduleWithSystem (
-    { self', ... }:
+  flake.homeModules.sc-controller =
     { config, pkgs, ... }:
     {
       options.my.programs.sc-controller = with lib; {
         enable = mkEnableOption "sc-controller with software" // {
           default = true;
         };
-        package = mkPackageOption self'.packages "sc-controller" { };
+        package = mkPackageOption pkgs "sc-controller" { };
       };
 
       config =
@@ -39,6 +39,5 @@
               config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/home-manager/files/.config/scc/profiles";
           };
         };
-    }
-  );
+    };
 }

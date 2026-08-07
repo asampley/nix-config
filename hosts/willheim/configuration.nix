@@ -10,6 +10,10 @@
     self.inputs.nixpkgs.lib.nixosSystem {
       modules = with self.nixosModules; [
         default
+
+        adamhouston
+        asampley
+
         auto-certs
         borgbackup
         borgbackup-notifications
@@ -28,11 +32,10 @@
         ntfy-server
         ntfy-server-sops
         sops
-        users
         utf-nate
         wireguard
         xmpp
-        self.inputs.foundry-vtt.nixosModules.foundryvtt
+        #self.inputs.foundry-vtt.nixosModules.foundryvtt
         self.inputs.sops-nix.nixosModules.sops
         (
           { config, pkgs, ... }:
@@ -65,9 +68,9 @@
             };
 
             my.matrix.tuwunel = {
-              enable = true;
+              #enable = true;
               publicDomainName = "asampley.ca";
-              sops.enable = true;
+              #sops.enable = true;
             };
 
             my.monitoring = {
@@ -83,8 +86,8 @@
             };
 
             my.users.adamhouston.enable = true;
-            users.users.adamhouston.extraGroups =
-              [ ] ++ lib.optional config.services.foundryvtt.enable config.users.users.foundryvtt.group;
+            #users.users.adamhouston.extraGroups =
+            #  [ ] ++ lib.optional config.services.foundryvtt.enable config.users.users.foundryvtt.group;
 
             my.wireguard = {
               enable = true;
@@ -265,15 +268,15 @@
                 };
               };
 
-              "foundryvtt.asampley.ca" = {
-                forceSSL = true;
-                enableACME = true;
-                locations."/" = {
-                  proxyPass = "http://localhost:${toString config.services.foundryvtt.port}";
-                  proxyWebsockets = true;
-                  recommendedProxySettings = true;
-                };
-              };
+              #"foundryvtt.asampley.ca" = {
+              #  forceSSL = true;
+              #  enableACME = true;
+              #  locations."/" = {
+              #    proxyPass = "http://localhost:${toString config.services.foundryvtt.port}";
+              #    proxyWebsockets = true;
+              #    recommendedProxySettings = true;
+              #  };
+              #};
 
               "adam.asampley.ca" = {
                 forceSSL = true;
@@ -313,18 +316,18 @@
               "utf-nate@2.service"
             ];
 
-            services.foundryvtt = {
-              enable = true;
-              hostName = "foundryvtt.asampley.ca";
-              minifyStaticFiles = true;
-              package = inputs'.foundry-vtt.packages.foundryvtt_14;
-              proxyPort = 443;
-              proxySSL = true;
-              upnp = false;
-            };
-            systemd.services.foundryvtt = {
-              serviceConfig.StateDirectoryMode = lib.mkForce "0770";
-            };
+            #services.foundryvtt = {
+            #  enable = true;
+            #  hostName = "foundryvtt.asampley.ca";
+            #  minifyStaticFiles = true;
+            #  package = inputs'.foundry-vtt.packages.foundryvtt_14;
+            #  proxyPort = 443;
+            #  proxySSL = true;
+            #  upnp = false;
+            #};
+            #systemd.services.foundryvtt = {
+            #  serviceConfig.StateDirectoryMode = lib.mkForce "0770";
+            #};
 
             sops.secrets."borg/pass" = {
               owner = config.users.users.borg.name;

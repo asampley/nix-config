@@ -10,6 +10,9 @@
     inputs.nixpkgs.lib.nixosSystem {
       modules = with self.nixosModules; [
         default
+
+        asampley
+
         audio
         auto-certs
         bluetooth
@@ -25,7 +28,6 @@
         notifications
         oom
         stylix
-        users
         wayland
         x
         inputs.base16.nixosModule
