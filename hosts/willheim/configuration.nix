@@ -19,6 +19,7 @@
         borgbackup-notifications
         bittorrent
         cloud
+        conan-exiles
         maintenance
         maintenance-notifications
         matrix
@@ -32,6 +33,7 @@
         ntfy-server
         ntfy-server-sops
         sops
+        steamcmd
         utf-nate
         wireguard
         xmpp
@@ -94,20 +96,6 @@
               openFirewall = true;
             };
 
-            services.prometheus.exporters.node.enable = true;
-            services.prometheus.exporters.borg = {
-              enable = true;
-              user = "borg";
-              settings = {
-                borg_repos = [
-                  {
-                    path = config.services.borgbackup.jobs."${config.my.cloud.nextcloud.borgbackup.name}".repo;
-                    passcommand = "cat ${config.sops.secrets."borg/pass".path}";
-                  }
-                ];
-              };
-            };
-
             my.notifications = {
               enable = true;
               ntfy = {
@@ -164,6 +152,25 @@
               };
             };
 
+            services.conan-exiles = {
+              enable = true;
+              openFirewall = true;
+            };
+
+            services.prometheus.exporters.node.enable = true;
+            services.prometheus.exporters.borg = {
+              enable = true;
+              user = "borg";
+              settings = {
+                borg_repos = [
+                  {
+                    path = config.services.borgbackup.jobs."${config.my.cloud.nextcloud.borgbackup.name}".repo;
+                    passcommand = "cat ${config.sops.secrets."borg/pass".path}";
+                  }
+                ];
+              };
+            };
+
             sops.secrets."terraria/pass-env" = {
               owner = config.users.users.terraria.name;
             };
@@ -195,6 +202,21 @@
 
             users.users.borg.extraGroups = [ config.users.users.terraria.group ];
             users.users.terraria.homeMode = "770";
+
+            #my.backup.borg.jobs.conan-exiles = {
+            #  repo = "ssh://fm2515@fm2515.rsync.net/./backup/conan-exiles";
+
+            #  paths = "${config.my.steamcmd.dataDir}/conan-exiles/";
+
+            #  environment = {
+            #    BORG_REMOTE_PATH = "/usr/local/bin/borg1/borg1";
+            #  };
+
+            #  encryption = {
+            #    mode = "repokey";
+            #    passCommand = "cat ${config.sops.secrets."borg/pass".path}";
+            #  };
+            #};
 
             my.backup.borg.jobs.terraria = {
               repo = "ssh://fm2515@fm2515.rsync.net/./backup/terraria";

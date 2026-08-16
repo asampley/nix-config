@@ -40,6 +40,7 @@
           "nvidia-settings"
           "nvidia-x11"
           "steam"
+          "steamcmd"
           "steam-original"
           "steam-unwrapped"
           "steam-run"
