@@ -41,6 +41,41 @@
         self.inputs.sops-nix.nixosModules.sops
         (
           { config, pkgs, ... }:
+          let
+            utf-nate-resources = pkgs.symlinkJoin {
+              name = "utf-nate-resources";
+              paths = [
+                "${inputs'.utf-nate.packages.utf-nate}/resources"
+              ] ++ lib.optionals config.services.conan-exiles.enable [
+                (let x = pkgs.writeTextFile {
+                  name = "conan";
+                  executable = true;
+                  destination = "/cmd/conan";
+                  text = ''
+                    #!/bin/sh
+                    set -euf
+
+                    export PATH="/run/current-system/sw/bin:$PATH"
+
+                    mode="''${1:-}"
+
+                    case "$mode" in
+                      start | restart | stop)
+                        resources/cmd-template/systemctl.sh $mode '${config.systemd.services.steam-conan-exiles.name}'
+                        ;;
+                      update)
+                        resources/cmd-template/systemctl.sh start '${config.systemd.services.steamcmd-update-conan-exiles.name}'
+                        ;;
+                      *)
+                        echo "Mode must be one of the following: start, restart, stop, update"
+                        exit
+                        ;;
+                    esac
+                  '';
+                }; in builtins.trace (toString x) x)
+              ];
+            };
+          in
           {
             imports = [
               ./hardware-configuration.nix
@@ -339,8 +374,25 @@
               activity = { Watching = { name = "\U0001F440" } }
             '';
 
-            environment.etc."utf-nate/1/resources".source = "${inputs'.utf-nate.packages.utf-nate}/resources";
-            environment.etc."utf-nate/2/resources".source = "${inputs'.utf-nate.packages.utf-nate}/resources";
+            environment.etc."utf-nate/1/resources".source = "${utf-nate-resources}";
+            environment.etc."utf-nate/2/resources".source = "${utf-nate-resources}";
+
+            security.sudo.extraRules = lib.mkIf (config.users.users.utf-nate.enable && config.services.conan-exiles.enable) [
+              {
+                users = [ config.users.users.utf-nate.name ];
+                commands = (
+                  map (mode: {
+                    command = "/run/current-system/sw/bin/systemctl ${mode} ${config.systemd.services.steam-conan-exiles.name}";
+                    options = [ "NOPASSWD" ];
+                  }) [ "start" "stop" "restart" ]
+                ) ++ [
+                  {
+                    command = "/run/current-system/sw/bin/systemctl start ${config.systemd.services.steamcmd-update-conan-exiles.name}";
+                    options = [ "NOPASSWD" ];
+                  }
+                ];
+              }
+            ];
 
             systemd.targets.multi-user.wants = [
               "utf-nate@1.service"
