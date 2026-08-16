@@ -289,6 +289,15 @@
               };
             };
 
+            services.nginx.streamConfig = ''
+              server {
+                listen 9753 reuseport;
+                listen 9753 udp reuseport;
+                proxy_timeout 20s;
+                proxy_pass 192.168.4.192:30001;
+              }
+            '';
+
             services.rsnapshot.extraConfig = ''
               # Valheim server
               #backup /home/steam/.config/unity3d/IronGate/Valheim/worlds_local/        localhost/        exclude=*_backup_*,exclude=*.old
