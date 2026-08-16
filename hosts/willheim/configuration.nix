@@ -46,8 +46,9 @@
               name = "utf-nate-resources";
               paths = [
                 "${inputs'.utf-nate.packages.utf-nate}/resources"
-              ] ++ lib.optionals config.services.conan-exiles.enable [
-                (let x = pkgs.writeTextFile {
+              ]
+              ++ lib.optionals config.services.conan-exiles.enable [
+                (pkgs.writeTextFile {
                   name = "conan";
                   executable = true;
                   destination = "/cmd/conan";
@@ -72,7 +73,7 @@
                         ;;
                     esac
                   '';
-                }; in builtins.trace (toString x) x)
+                })
               ];
             };
           in
@@ -377,22 +378,31 @@
             environment.etc."utf-nate/1/resources".source = "${utf-nate-resources}";
             environment.etc."utf-nate/2/resources".source = "${utf-nate-resources}";
 
-            security.sudo.extraRules = lib.mkIf (config.users.users.utf-nate.enable && config.services.conan-exiles.enable) [
-              {
-                users = [ config.users.users.utf-nate.name ];
-                commands = (
-                  map (mode: {
-                    command = "/run/current-system/sw/bin/systemctl ${mode} ${config.systemd.services.steam-conan-exiles.name}";
-                    options = [ "NOPASSWD" ];
-                  }) [ "start" "stop" "restart" ]
-                ) ++ [
+            security.sudo.extraRules =
+              lib.mkIf (config.users.users.utf-nate.enable && config.services.conan-exiles.enable)
+                [
                   {
-                    command = "/run/current-system/sw/bin/systemctl start ${config.systemd.services.steamcmd-update-conan-exiles.name}";
-                    options = [ "NOPASSWD" ];
+                    users = [ config.users.users.utf-nate.name ];
+                    commands =
+                      (map
+                        (mode: {
+                          command = "/run/current-system/sw/bin/systemctl ${mode} ${config.systemd.services.steam-conan-exiles.name}";
+                          options = [ "NOPASSWD" ];
+                        })
+                        [
+                          "start"
+                          "stop"
+                          "restart"
+                        ]
+                      )
+                      ++ [
+                        {
+                          command = "/run/current-system/sw/bin/systemctl start ${config.systemd.services.steamcmd-update-conan-exiles.name}";
+                          options = [ "NOPASSWD" ];
+                        }
+                      ];
                   }
                 ];
-              }
-            ];
 
             systemd.targets.multi-user.wants = [
               "utf-nate@1.service"

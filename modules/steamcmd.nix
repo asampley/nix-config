@@ -86,7 +86,10 @@
                   {
                     name = if server.serviceName != null then server.serviceName else "steam-${name}";
                     value = {
-                      after = [ "network.target" "${config.systemd.services."steamcmd-update-${name}".name}" ];
+                      after = [
+                        "network.target"
+                        "${config.systemd.services."steamcmd-update-${name}".name}"
+                      ];
                       serviceConfig = with lib; {
                         User = user name server;
                         Group = config.users.groups.steamcmd.name;
