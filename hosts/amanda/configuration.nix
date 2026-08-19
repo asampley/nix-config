@@ -27,6 +27,7 @@
         noise-reduce
         notifications
         oom
+        restrict-audio-source-control
         stylix
         wayland
         x
@@ -64,6 +65,7 @@
             };
 
             my.oom.enable = true;
+            my.restrict-audio-source-control.enable = true;
             my.stylix.enable = true;
             my.wayland.enable = true;
             my.x.enable = true;

@@ -1,4 +1,54 @@
 {
+  flake.nixosModules.restrict-audio-source-control =
+  {
+    config,
+    lib,
+    ...
+  }:
+  {
+    options.my.restrict-audio-source-control = with lib; {
+      enable = mkEnableOption "restrict which programs can change microphone gain";
+      matches = mkOption {
+        type = with types; listOf attrs;
+        default = [
+          {
+            "application.name" = "~Chromium.*";
+          }
+          {
+            "application.name" = "Firefox";
+          }
+          {
+            "application.process.binary" = "Discord";
+          }
+          {
+            "application.process.binary" = ".Discord-wrapped";
+          }
+        ];
+      };
+    };
+
+    config =
+      let
+        cfg = config.my.restrict-audio-source-control;
+      in
+      lib.mkIf cfg.enable {
+        services.pipewire = {
+          extraConfig.pipewire-pulse."10-restrict-audio-source-control" = {
+            "pulse.rules" = [
+              {
+                matches = cfg.matches;
+                actions = {
+                  quirks = [
+                    "block-source-volume"
+                  ];
+                };
+              }
+            ];
+          };
+        };
+      };
+  };
+
   flake.nixosModules.noise-reduce =
     {
       config,

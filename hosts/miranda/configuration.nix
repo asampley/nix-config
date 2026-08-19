@@ -27,6 +27,7 @@
         notifications
         oom
         power-saving
+        restrict-audio-source-control
         sops
         stylix
         wayland
@@ -70,6 +71,7 @@
 
             my.oom.enable = true;
             my.power-saving.enable = true;
+            my.restrict-audio-source-control.enable = true;
             my.sops.enable = true;
             my.stylix.enable = true;
             my.wayland.enable = true;
