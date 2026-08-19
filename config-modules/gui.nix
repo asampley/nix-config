@@ -63,6 +63,12 @@
             }) (builtins.attrNames config.programs.firefox.profiles)
           );
 
+        home.pointerCursor = {
+          enable = true;
+          package = pkgs.graphite-cursors;
+          name = "graphite-dark";
+        };
+
         programs.alacritty = {
           enable = true;
         };
