@@ -39,15 +39,27 @@
                   };
                 };
 
-                homeDir = mkOption { type = path; readOnly = true; };
-                installDir = mkOption { type = path; readOnly = true; };
+                homeDir = mkOption {
+                  type = path;
+                  readOnly = true;
+                };
+                installDir = mkOption {
+                  type = path;
+                  readOnly = true;
+                };
               };
             });
-            apply = value: builtins.mapAttrs (name: server: server // {
-              user = if server.user != null then server.user else "steamcmd-${name}";
-              homeDir = "${config.my.steamcmd.installDir}/${name}";
-              installDir = "${config.my.steamcmd.installDir}/${name}/game";
-            }) value;
+            apply =
+              value:
+              builtins.mapAttrs (
+                name: server:
+                server
+                // {
+                  user = if server.user != null then server.user else "steamcmd-${name}";
+                  homeDir = "${config.my.steamcmd.installDir}/${name}";
+                  installDir = "${config.my.steamcmd.installDir}/${name}/game";
+                }
+              ) value;
           };
         };
 

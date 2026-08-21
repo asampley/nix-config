@@ -202,12 +202,12 @@
               enable = true;
               user = "borg";
               settings = {
-                borg_repos = builtins.attrValues (builtins.mapAttrs (_: value:
-                  {
+                borg_repos = builtins.attrValues (
+                  builtins.mapAttrs (_: value: {
                     path = value.repo;
                     passcommand = "cat ${config.sops.secrets."borg/pass".path}";
-                  }
-                ) config.services.borgbackup.jobs);
+                  }) config.services.borgbackup.jobs
+                );
               };
             };
 
@@ -242,10 +242,12 @@
 
             users.users.terraria.homeMode = "770";
 
-            users.users.borg.extraGroups = []
+            users.users.borg.extraGroups =
+              [ ]
               ++ lib.optionals config.services.terraria.enable [ config.users.users.terraria.group ]
-              ++ lib.optionals config.services.conan-exiles.enable [ config.users.users.${config.my.steamcmd.servers.conan-exiles.user}.group ]
-            ;
+              ++ lib.optionals config.services.conan-exiles.enable [
+                config.users.users.${config.my.steamcmd.servers.conan-exiles.user}.group
+              ];
 
             my.backup.borg.jobs.conan-exiles = {
               repo = "ssh://fm2515@fm2515.rsync.net/./backup/conan-exiles";
