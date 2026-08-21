@@ -11,7 +11,7 @@
         with types;
         {
           enable = mkEnableOption "steamcmd download systemd services";
-          dataDir = mkOption {
+          installDir = mkOption {
             type = path;
             default = "/var/lib/steamcmd-servers";
           };
@@ -38,27 +38,34 @@
                     };
                   };
                 };
+
+                homeDir = mkOption { type = path; readOnly = true; };
+                installDir = mkOption { type = path; readOnly = true; };
               };
             });
+            apply = value: builtins.mapAttrs (name: server: server // {
+              user = if server.user != null then server.user else "steamcmd-${name}";
+              homeDir = "${config.my.steamcmd.installDir}/${name}";
+              installDir = "${config.my.steamcmd.installDir}/${name}/game";
+            }) value;
           };
         };
 
       config =
         let
           cfg = config.my.steamcmd;
-          user = name: server: if server.user != null then server.user else "steamcmd-${name}";
-          homeDir = name: server: "${cfg.dataDir}/${name}";
-          serverDir = name: server: "${homeDir name server}/game";
         in
         lib.mkIf cfg.enable {
+
           users.users =
             builtins.listToAttrs (
               builtins.attrValues (
                 builtins.mapAttrs (name: server: {
                   name = "steamcmd-${name}";
                   value = {
-                    name = user name server;
-                    home = homeDir name server;
+                    name = server.user;
+                    home = server.homeDir;
+                    homeMode = "750";
                     createHome = true;
                     isSystemUser = true;
                     group = config.users.groups.steamcmd.name;
@@ -69,9 +76,9 @@
             // {
               steamcmd = {
                 name = "steamcmd";
-                home = cfg.dataDir;
+                home = cfg.installDir;
                 createHome = true;
-                homeMode = "770";
+                homeMode = "750";
                 isSystemUser = true;
                 group = config.users.groups.steamcmd.name;
               };
@@ -90,10 +97,10 @@
                         "network.target"
                         "${config.systemd.services."steamcmd-update-${name}".name}"
                       ];
-                      serviceConfig = with lib; {
-                        User = user name server;
+                      serviceConfig = {
+                        User = server.user;
                         Group = config.users.groups.steamcmd.name;
-                        WorkingDirectory = "${serverDir name server}";
+                        WorkingDirectory = server.installDir;
                         ExecStart = server.start;
                       };
                     };
@@ -103,11 +110,11 @@
                     value = {
                       after = [ "network.target" ];
                       serviceConfig = {
-                        User = user name server;
+                        User = server.user;
                         Group = config.users.groups.steamcmd.name;
-                        WorkingDirectory = cfg.dataDir;
+                        WorkingDirectory = cfg.installDir;
                         ExecStart = "${pkgs.steamcmd}/bin/steamcmd +runscript ${pkgs.writeText "steamcmd-update-${name}.steamcmd" ''
-                          force_install_dir ${serverDir name server}
+                          force_install_dir ${server.installDir}
                           login anonymous
                           ${if server.preSteamUpdate != null then server.preSteamUpdate else ""}
                           app_update ${server.appId}

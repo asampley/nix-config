@@ -86,6 +86,10 @@
             my.auto-certs.enable = true;
 
             my.backup.borg.notifications.enable = true;
+            my.backup.borg.defaults.jobs = with lib; {
+              user = mkOverride 99 config.users.users.borg.name;
+              group = mkOverride 99 config.users.users.borg.group;
+            };
 
             my.bittorrent.opentracker = {
               enable = true;
@@ -198,12 +202,12 @@
               enable = true;
               user = "borg";
               settings = {
-                borg_repos = [
+                borg_repos = builtins.attrValues (builtins.mapAttrs (_: value:
                   {
-                    path = config.services.borgbackup.jobs."${config.my.cloud.nextcloud.borgbackup.name}".repo;
+                    path = value.repo;
                     passcommand = "cat ${config.sops.secrets."borg/pass".path}";
                   }
-                ];
+                ) config.services.borgbackup.jobs);
               };
             };
 
@@ -236,33 +240,33 @@
               };
             };
 
-            users.users.borg.extraGroups = [ config.users.users.terraria.group ];
             users.users.terraria.homeMode = "770";
 
-            #my.backup.borg.jobs.conan-exiles = {
-            #  repo = "ssh://fm2515@fm2515.rsync.net/./backup/conan-exiles";
+            users.users.borg.extraGroups = []
+              ++ lib.optionals config.services.terraria.enable [ config.users.users.terraria.group ]
+              ++ lib.optionals config.services.conan-exiles.enable [ config.users.users.${config.my.steamcmd.servers.conan-exiles.user}.group ]
+            ;
 
-            #  paths = "${config.my.steamcmd.dataDir}/conan-exiles/";
+            my.backup.borg.jobs.conan-exiles = {
+              repo = "ssh://fm2515@fm2515.rsync.net/./backup/conan-exiles";
+              paths = "${config.my.steamcmd.servers.conan-exiles.installDir}/ConanSandbox/Saved";
 
-            #  environment = {
-            #    BORG_REMOTE_PATH = "/usr/local/bin/borg1/borg1";
-            #  };
-
-            #  encryption = {
-            #    mode = "repokey";
-            #    passCommand = "cat ${config.sops.secrets."borg/pass".path}";
-            #  };
-            #};
+              environment = {
+                BORG_REMOTE_PATH = "/usr/local/bin/borg1/borg1";
+              };
+              encryption = {
+                mode = "repokey";
+                passCommand = "cat ${config.sops.secrets."borg/pass".path}";
+              };
+            };
 
             my.backup.borg.jobs.terraria = {
               repo = "ssh://fm2515@fm2515.rsync.net/./backup/terraria";
-
               paths = "/var/lib/terraria/";
 
               environment = {
                 BORG_REMOTE_PATH = "/usr/local/bin/borg1/borg1";
               };
-
               encryption = {
                 mode = "repokey";
                 passCommand = "cat ${config.sops.secrets."borg/pass".path}";
