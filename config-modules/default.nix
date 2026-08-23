@@ -159,10 +159,6 @@
           randomizedDelaySec = "45min";
         };
 
-        nixpkgs.config.permittedInsecurePackages = [
-          "electron-39.8.10"
-        ];
-
         # The home.packages option allows you to install Nix packages into your
         # environment.
         home.packages = with pkgs; [
@@ -202,6 +198,7 @@
           pkg:
           builtins.elem (pkgs.lib.getName pkg) [
             "discord"
+            "discord-unwrapped"
           ];
 
         # Home Manager is pretty good at managing dotfiles. The primary way to manage
