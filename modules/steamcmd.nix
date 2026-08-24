@@ -21,9 +21,31 @@
               options = {
                 serviceName = mkOption { type = nullOr str; };
                 appId = mkOption { type = str; };
+                workshop = mkOption {
+                  type = nullOr (submodule {
+                    options = {
+                      id = mkOption { type = nullOr str; };
+                      modIds = mkOption {
+                        type = listOf str;
+                        default = [ ];
+                      };
+                    };
+                  });
+                };
                 user = mkOption { type = nullOr str; };
                 start = mkOption { type = package; };
-                preSteamUpdate = mkOption { type = nullOr lines; };
+                preUpdate = mkOption {
+                  type = lines;
+                  default = "";
+                };
+                preSteamUpdate = mkOption {
+                  type = lines;
+                  default = "";
+                };
+                postUpdate = mkOption {
+                  type = lines;
+                  default = "";
+                };
                 openFirewall = mkOption {
                   type = submodule {
                     options = {
@@ -125,13 +147,25 @@
                         User = server.user;
                         Group = config.users.groups.steamcmd.name;
                         WorkingDirectory = cfg.installDir;
-                        ExecStart = "${pkgs.steamcmd}/bin/steamcmd +runscript ${pkgs.writeText "steamcmd-update-${name}.steamcmd" ''
-                          force_install_dir ${server.installDir}
-                          login anonymous
-                          ${if server.preSteamUpdate != null then server.preSteamUpdate else ""}
-                          app_update ${server.appId}
-                          quit
-                        ''}";
+                        ExecStart = pkgs.writeShellScript "steamcmd-update-${name}.bash" ''
+                          ${server.preUpdate}
+                          "${pkgs.steamcmd}/bin/steamcmd +runscript ${pkgs.writeText "steamcmd-update-${name}.steamcmd" ''
+                            force_install_dir ${server.installDir}
+                            login anonymous
+                            ${if server.preSteamUpdate != null then server.preSteamUpdate else ""}
+                            app_update ${server.appId}
+                            ${
+                              if server.workshop != null && builtins.length server.workshop.modIds != 0 then
+                                lib.strings.concatLines (
+                                  map (modId: "workshop_download_item ${server.workshop.id} ${modId}") server.workshop.modIds
+                                )
+                              else
+                                ""
+                            }
+                            quit
+                          ''}";
+                          ${server.postUpdate}
+                        '';
                       };
                     };
                   }

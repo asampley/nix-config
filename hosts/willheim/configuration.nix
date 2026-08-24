@@ -195,6 +195,9 @@
             services.conan-exiles = {
               enable = true;
               openFirewall = true;
+              modIds = [
+                "3725018456"
+              ];
             };
 
             services.prometheus.exporters.node.enable = true;
