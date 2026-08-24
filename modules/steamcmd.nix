@@ -69,6 +69,10 @@
                   type = path;
                   readOnly = true;
                 };
+                modDir = mkOption {
+                  type = path;
+                  readOnly = true;
+                };
               };
             });
             apply =
@@ -80,6 +84,7 @@
                   user = if server.user != null then server.user else "steamcmd-${name}";
                   homeDir = "${config.my.steamcmd.installDir}/${name}";
                   installDir = "${config.my.steamcmd.installDir}/${name}/game";
+                  modDir = "${config.my.steamcmd.installDir}/${name}/mods";
                 }
               ) value;
           };
@@ -149,21 +154,28 @@
                         WorkingDirectory = cfg.installDir;
                         ExecStart = pkgs.writeShellScript "steamcmd-update-${name}.bash" ''
                           ${server.preUpdate}
-                          "${pkgs.steamcmd}/bin/steamcmd +runscript ${pkgs.writeText "steamcmd-update-${name}.steamcmd" ''
+                          ${pkgs.steamcmd}/bin/steamcmd +runscript ${pkgs.writeText "steamcmd-update-${name}.steamcmd" ''
                             force_install_dir ${server.installDir}
                             login anonymous
                             ${if server.preSteamUpdate != null then server.preSteamUpdate else ""}
                             app_update ${server.appId}
-                            ${
-                              if server.workshop != null && builtins.length server.workshop.modIds != 0 then
-                                lib.strings.concatLines (
-                                  map (modId: "workshop_download_item ${server.workshop.id} ${modId}") server.workshop.modIds
-                                )
-                              else
-                                ""
-                            }
                             quit
-                          ''}";
+                          ''}
+                          ${
+                            if server.workshop != null && builtins.length server.workshop.modIds != 0 then
+                              ''
+                                ${pkgs.steamcmd}/bin/steamcmd +runscript ${pkgs.writeText "steamcmd-update-${name}-mods.steamcmd" ''
+                                  force_install_dir ${server.modDir}
+                                  login anonymous
+                                  ${lib.strings.concatLines (
+                                    map (modId: "workshop_download_item ${server.workshop.id} ${modId}") server.workshop.modIds
+                                  )}
+                                  quit
+                                ''}
+                              ''
+                            else
+                              ""
+                          }
                           ${server.postUpdate}
                         '';
                       };

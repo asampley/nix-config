@@ -34,6 +34,17 @@
               start = pkgs.writeShellScript "conan-exiles-start.sh" ''
                 ${pkgs.steam-run}/bin/steam-run ./ConanSandboxServer.sh
               '';
+              postUpdate = ''
+                MOD_DIR='${config.my.steamcmd.servers.conan-exiles.installDir}/Mods'
+                mkdir -p "$MOD_DIR"
+                echo > "$MOD_DIR/modlist.txt"
+                ${lib.strings.concatLines (
+                  map (
+                    modId:
+                    ''find '${config.my.steamcmd.servers.conan-exiles.modDir}/steamapps/workshop/content/${config.my.steamcmd.servers.conan-exiles.workshop.id}/${modId}/' -name '*.pak' >> "$MOD_DIR/modlist.txt"''
+                  ) cfg.modIds
+                )}
+              '';
               openFirewall = lib.mkIf cfg.openFirewall {
                 allowedTCPPorts = [
                   7777
