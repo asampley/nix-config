@@ -35,9 +35,9 @@
                 ${pkgs.steam-run}/bin/steam-run ./ConanSandboxServer.sh
               '';
               postUpdate = ''
-                MOD_DIR='${config.my.steamcmd.servers.conan-exiles.installDir}/Mods'
+                MOD_DIR='${config.my.steamcmd.servers.conan-exiles.installDir}/ConanSandbox/Mods'
                 mkdir -p "$MOD_DIR"
-                echo > "$MOD_DIR/modlist.txt"
+                truncate -s 0 "$MOD_DIR/modlist.txt"
                 ${lib.strings.concatLines (
                   map (
                     modId:
