@@ -34,6 +34,7 @@
         ntfy-server-sops
         sops
         steamcmd
+        syncthing-wireguard
         utf-nate
         wireguard
         xmpp
@@ -153,6 +154,14 @@
             };
 
             my.sops.enable = true;
+
+            my.syncthing-wireguard = {
+              enable = true;
+              peers = [
+                self.nixosConfigurations.miranda.config.networking.hostName
+              ];
+            };
+
             my.utf-nate.enable = true;
 
             my.xmpp.prosody = {

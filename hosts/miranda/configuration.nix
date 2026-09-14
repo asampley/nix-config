@@ -29,7 +29,9 @@
         power-saving
         restrict-audio-source-control
         sops
+        sops-syncthing
         stylix
+        syncthing-wireguard
         wayland
         wireguard
         x
@@ -73,7 +75,16 @@
             my.power-saving.enable = true;
             my.restrict-audio-source-control.enable = true;
             my.sops.enable = true;
+            my.sops.syncthing.enable = true;
             my.stylix.enable = true;
+
+            my.syncthing-wireguard = {
+              enable = true;
+              peers = [
+                self.nixosConfigurations.willheim.config.networking.hostName
+              ];
+            };
+
             my.wayland.enable = true;
             my.wireguard.enable = true;
             my.x.enable = true;

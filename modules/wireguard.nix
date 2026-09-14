@@ -3,45 +3,51 @@
   flake.nixosModules.wireguard =
     { config, pkgs, ... }:
     {
-      options.my.wireguard = with lib; {
-        enable = mkEnableOption "wireguard peer settings";
-        openFirewall = mkEnableOption "open firewall for receiving initial connections";
-      };
-
-      config =
-        let
-          cfg = config.my.wireguard;
-          addressMap =
-            builtins.mapAttrs
-              (
+      options.my.wireguard =
+        with lib;
+        with types;
+        {
+          enable = mkEnableOption "wireguard peer settings";
+          openFirewall = mkEnableOption "open firewall for receiving initial connections";
+          addressMap = mkOption {
+            type = attrs;
+            default = {
+              "willheim" = rec {
+                index = 1;
+                listenPort = 55820;
+                endpoint = "asampley.ca:${toString listenPort}";
+                peers = [
+                  "miranda"
+                  "adam"
+                ];
+              };
+              "miranda" = {
+                index = 2;
+                peers = [ "willheim" ];
+              };
+              "adam" = {
+                index = 192;
+                peers = [ "willheim" ];
+              };
+            };
+            apply =
+              value:
+              builtins.mapAttrs (
                 n: v:
                 v
                 // {
                   address = [ "192.168.4.${toString v.index}" ];
                   publicKey = lib.trim (builtins.readFile ../hosts/${n}/wireguard.pub);
                 }
-              )
-              {
-                "willheim" = rec {
-                  index = 1;
-                  listenPort = 55820;
-                  endpoint = "asampley.ca:${toString listenPort}";
-                  peers = [
-                    "miranda"
-                    "adam"
-                  ];
-                };
-                "miranda" = {
-                  index = 2;
-                  peers = [ "willheim" ];
-                };
-                "adam" = {
-                  index = 192;
-                  peers = [ "willheim" ];
-                };
-              };
-          local = addressMap.${config.networking.hostName};
-          others = lib.filterAttrs (name: _: builtins.any (n: n == name) local.peers) addressMap;
+              ) value;
+          };
+        };
+
+      config =
+        let
+          cfg = config.my.wireguard;
+          local = cfg.addressMap.${config.networking.hostName};
+          others = lib.filterAttrs (name: _: builtins.any (n: n == name) local.peers) cfg.addressMap;
         in
         lib.mkIf cfg.enable {
           environment.systemPackages = with pkgs; [

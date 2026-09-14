@@ -19,9 +19,25 @@
               ${sops}/bin/sops edit ${config.sops.defaultSopsFile}
             '')
           ];
-          sops.defaultSopsFile = "/root/sops/secrets/main.yaml";
-          sops.validateSopsFiles = false;
+          sops.defaultSopsFile = lib.mkDefault "/root/sops/secrets/main.yaml";
+          sops.validateSopsFiles = lib.mkDefault false;
           sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
+        };
+    };
+
+  flake.nixosModules.sops-syncthing =
+    { config, ... }:
+    {
+      options.my.sops.syncthing = with lib; {
+        enable = mkEnableOption "source sops file from syncthing";
+      };
+
+      config =
+        let
+          cfg = config.my.sops.syncthing;
+        in
+        lib.mkIf cfg.enable {
+          sops.defaultSopsFile = "/var/lib/syncthing/sops/secrets/main.yaml";
         };
     };
 
