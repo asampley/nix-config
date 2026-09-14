@@ -26,19 +26,24 @@
             enable = lib.mkDefault true;
             openDefaultPorts = true;
             overrideDevices = true;
+            overrideFolders = true;
 
             settings = {
               devices = builtins.listToAttrs (
                 map (peer: {
                   name = peer;
                   value = {
-                    addresses = [
-                      config.my.wireguard.addressMap.${peer}.address
-                    ];
+                    addresses = map (address: "tcp://${address}:22000") config.my.wireguard.addressMap.${peer}.address;
                     id = lib.trim (builtins.readFile ../hosts/${peer}/syncthing.id);
                   };
                 }) cfg.peers
               );
+
+              folders = {
+                "${config.users.users.syncthing.home}/sync" = {
+                  devices = cfg.peers;
+                };
+              };
             };
           };
         };

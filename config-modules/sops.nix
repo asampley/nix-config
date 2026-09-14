@@ -37,7 +37,7 @@
           cfg = config.my.sops.syncthing;
         in
         lib.mkIf cfg.enable {
-          sops.defaultSopsFile = "/var/lib/syncthing/sops/secrets/main.yaml";
+          sops.defaultSopsFile = "${config.users.users.syncthing.home}/sync/sops/secrets/main.yaml";
         };
     };
 
