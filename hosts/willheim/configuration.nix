@@ -36,9 +36,9 @@
         steamcmd
         syncthing-wireguard
         utf-nate
+        valheim
         wireguard
         xmpp
-        #self.inputs.foundry-vtt.nixosModules.foundryvtt
         self.inputs.sops-nix.nixosModules.sops
         (
           { config, pkgs, ... }:
@@ -48,34 +48,53 @@
               paths = [
                 "${inputs'.utf-nate.packages.utf-nate}/resources"
               ]
-              ++ lib.optionals config.services.conan-exiles.enable [
-                (pkgs.writeTextFile {
-                  name = "conan";
-                  executable = true;
-                  destination = "/cmd/conan";
-                  text = ''
-                    #!/bin/sh
-                    set -euf
+              ++ (map
+                (
+                  {
+                    command,
+                    run-service,
+                    update-service,
+                  }:
+                  (pkgs.writeTextFile {
+                    name = command;
+                    executable = true;
+                    destination = "/cmd/${command}";
+                    text = ''
+                      #!/bin/sh
+                      set -euf
 
-                    export PATH="/run/current-system/sw/bin:$PATH"
+                      export PATH="/run/current-system/sw/bin:$PATH"
 
-                    mode="''${1:-}"
+                      mode="''${1:-}"
 
-                    case "$mode" in
-                      start | restart | stop)
-                        resources/cmd-template/systemctl.sh $mode '${config.systemd.services.steam-conan-exiles.name}'
-                        ;;
-                      update)
-                        resources/cmd-template/systemctl.sh start '${config.systemd.services.steamcmd-update-conan-exiles.name}'
-                        ;;
-                      *)
-                        echo "Mode must be one of the following: start, restart, stop, update"
-                        exit
-                        ;;
-                    esac
-                  '';
-                })
-              ];
+                      case "$mode" in
+                        start | restart | stop)
+                          resources/cmd-template/systemctl.sh $mode '${run-service}'
+                          ;;
+                        update)
+                          resources/cmd-template/systemctl.sh start '${update-service}'
+                          ;;
+                        *)
+                          echo "Mode must be one of the following: start, restart, stop, update"
+                          exit
+                          ;;
+                      esac
+                    '';
+                  })
+                )
+                (
+                  (lib.optional config.services.conan-exiles.enable {
+                    command = "conan";
+                    run-service = config.systemd.services.steam-conan-exiles.name;
+                    update-service = config.systemd.services.steamcmd-update-conan-exiles.name;
+                  })
+                  ++ (lib.optional config.services.valheim.enable {
+                    command = "valheim";
+                    run-service = config.systemd.services.steam-valheim.name;
+                    update-service = config.systemd.services.steamcmd-update-valheim.name;
+                  })
+                )
+              );
             };
           in
           {
@@ -246,6 +265,18 @@
               );
             };
 
+            services.valheim = {
+              enable = true;
+              openFirewall = true;
+              passwordFile = config.sops.secrets."valheim/password".path;
+              name = "Lochheim";
+              world = "Lochheim";
+            };
+
+            sops.secrets."valheim/password" = {
+              owner = config.users.users.steamcmd-valheim.name;
+            };
+
             systemd.services.terraria = {
               serviceConfig = {
                 EnvironmentFile = config.sops.secrets."terraria/pass-env".path;
@@ -277,6 +308,19 @@
             my.backup.borg.jobs.terraria = {
               repo = "ssh://fm2515@fm2515.rsync.net/./backup/terraria";
               paths = "/var/lib/terraria/";
+
+              environment = {
+                BORG_REMOTE_PATH = "/usr/local/bin/borg1/borg1";
+              };
+              encryption = {
+                mode = "repokey";
+                passCommand = "cat ${config.sops.secrets."borg/pass".path}";
+              };
+            };
+
+            my.backup.borg.jobs.valheim = {
+              repo = "ssh://fm2515@fm2515.rsync.net/./backup/valheim";
+              paths = "${config.my.steamcmd.servers.valheim.homeDir}/.config/unity3d/IronGate/Valheim/worlds_local";
 
               environment = {
                 BORG_REMOTE_PATH = "/usr/local/bin/borg1/borg1";
@@ -344,16 +388,6 @@
                 };
               };
 
-              #"foundryvtt.asampley.ca" = {
-              #  forceSSL = true;
-              #  enableACME = true;
-              #  locations."/" = {
-              #    proxyPass = "http://localhost:${toString config.services.foundryvtt.port}";
-              #    proxyWebsockets = true;
-              #    recommendedProxySettings = true;
-              #  };
-              #};
-
               "adam.asampley.ca" = {
                 forceSSL = true;
                 enableACME = true;
@@ -374,11 +408,6 @@
               }
             '';
 
-            services.rsnapshot.extraConfig = ''
-              # Valheim server
-              #backup /home/steam/.config/unity3d/IronGate/Valheim/worlds_local/        localhost/        exclude=*_backup_*,exclude=*.old
-            '';
-
             environment.etc."utf-nate/1/config.toml".text = ''
               # List of prefixes recognized by the bot
               prefixes = ["!", "‽"]
@@ -396,31 +425,40 @@
             environment.etc."utf-nate/1/resources".source = "${utf-nate-resources}";
             environment.etc."utf-nate/2/resources".source = "${utf-nate-resources}";
 
-            security.sudo.extraRules =
-              lib.mkIf (config.users.users.utf-nate.enable && config.services.conan-exiles.enable)
-                [
-                  {
-                    users = [ config.users.users.utf-nate.name ];
-                    commands =
-                      (map
-                        (mode: {
-                          command = "/run/current-system/sw/bin/systemctl ${mode} ${config.systemd.services.steam-conan-exiles.name}";
-                          options = [ "NOPASSWD" ];
-                        })
-                        [
-                          "start"
-                          "stop"
-                          "restart"
-                        ]
-                      )
-                      ++ [
-                        {
-                          command = "/run/current-system/sw/bin/systemctl start ${config.systemd.services.steamcmd-update-conan-exiles.name}";
-                          options = [ "NOPASSWD" ];
-                        }
-                      ];
-                  }
-                ];
+            security.sudo.extraRules = (
+              map
+                ({ run-service, update-service }: {
+                  users = [ config.users.users.utf-nate.name ];
+                  commands =
+                    (map
+                      (mode: {
+                        command = "/run/current-system/sw/bin/systemctl ${mode} ${run-service}";
+                        options = [ "NOPASSWD" ];
+                      })
+                      [
+                        "start"
+                        "stop"
+                        "restart"
+                      ]
+                    )
+                    ++ [
+                      {
+                        command = "/run/current-system/sw/bin/systemctl start ${update-service}";
+                        options = [ "NOPASSWD" ];
+                      }
+                    ];
+                })
+                (
+                  (lib.optional (config.users.users.utf-nate.enable && config.services.conan-exiles.enable) {
+                    run-service = config.systemd.services.steam-conan-exiles.name;
+                    update-service = config.systemd.services.steamcmd-update-conan-exiles.name;
+                  })
+                  ++ (lib.optional (config.users.users.utf-nate.enable && config.services.valheim.enable) {
+                    run-service = config.systemd.services.steam-valheim.name;
+                    update-service = config.systemd.services.steamcmd-update-valheim.name;
+                  })
+                )
+            );
 
             systemd.targets.multi-user.wants = [
               "utf-nate@1.service"
