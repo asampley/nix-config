@@ -24,11 +24,14 @@
         lib.mkIf cfg.enable {
           services.syncthing = {
             enable = lib.mkDefault true;
+            # TODO
+            #guiPasswordFile = "/etc/syncthing.passwd";
             openDefaultPorts = true;
             overrideDevices = true;
             overrideFolders = true;
 
             settings = {
+              gui.user = "admin";
               devices = builtins.listToAttrs (
                 map (peer: {
                   name = peer;

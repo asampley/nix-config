@@ -12,13 +12,9 @@
           cfg = config.my.sops;
         in
         lib.mkIf cfg.enable {
-          environment.systemPackages = with pkgs; [
-            sops
-            (writeShellScriptBin "sops-edit" ''
-              export SOPS_AGE_KEY_CMD="${ssh-to-age}/bin/ssh-to-age -private-key -i '${builtins.elemAt config.sops.age.sshKeyPaths 0}'"
-              ${sops}/bin/sops edit ${config.sops.defaultSopsFile}
-            '')
-          ];
+          environment.variables = {
+            SOPS_AGE_KEY_CMD = "${pkgs.ssh-to-age}/bin/ssh-to-age -private-key -i '${builtins.elemAt config.sops.age.sshKeyPaths 0}'";
+          };
           sops.defaultSopsFile = lib.mkDefault "/root/sops/secrets/main.yaml";
           sops.validateSopsFiles = lib.mkDefault false;
           sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
@@ -35,9 +31,15 @@
       config =
         let
           cfg = config.my.sops.syncthing;
+          hostFile = "${config.users.users.syncthing.home}/sync/sops/secrets/${config.networking.hostName}.yaml";
+          sharedFile = "${config.users.users.syncthing.home}/sync/sops/secrets/systems.yaml";
         in
         lib.mkIf cfg.enable {
-          sops.defaultSopsFile = "${config.users.users.syncthing.home}/sync/sops/secrets/main.yaml";
+          sops.defaultSopsFile = hostFile;
+
+          sops.secrets."ntfy/password" = {
+            path = sharedFile;
+          };
         };
     };
 
