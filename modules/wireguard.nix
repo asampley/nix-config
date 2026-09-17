@@ -18,12 +18,23 @@
                 endpoint = "asampley.ca:${toString listenPort}";
                 peers = [
                   "miranda"
+                  "phone"
                   "adam"
                 ];
               };
               "miranda" = {
                 index = 2;
-                peers = [ "willheim" ];
+                peers = [
+                  "willheim"
+                  "phone"
+                ];
+              };
+              "phone" = {
+                index = 4;
+                peers = [
+                  "willheim"
+                  "phone"
+                ];
               };
               "adam" = {
                 index = 192;
