@@ -24,17 +24,11 @@
               };
               "miranda" = {
                 index = 2;
-                peers = [
-                  "willheim"
-                  "phone"
-                ];
+                networkpeer = "willheim";
               };
               "phone" = {
                 index = 4;
-                peers = [
-                  "willheim"
-                  "phone"
-                ];
+                networkpeer = "willheim";
               };
               "adam" = {
                 index = 192;
@@ -58,7 +52,7 @@
         let
           cfg = config.my.wireguard;
           local = cfg.addressMap.${config.networking.hostName};
-          others = lib.filterAttrs (name: _: builtins.any (n: n == name) local.peers) cfg.addressMap;
+          others = lib.filterAttrs (name: _: builtins.any (n: n == name) local.peers or [ ]) cfg.addressMap;
         in
         lib.mkIf cfg.enable {
           environment.systemPackages = with pkgs; [
@@ -71,12 +65,24 @@
               listenPort = local.listenPort or null;
               privateKeyFile = "/etc/wireguard/privatekey";
 
-              peers = map (host: {
-                endpoint = host.endpoint or null;
-                publicKey = host.publicKey;
-                presharedKeyFile = "/etc/wireguard/presharedkey";
-                allowedIPs = map (a: "${a}/32") host.address;
-              }) (builtins.attrValues others);
+              peers =
+                map (host: {
+                  endpoint = host.endpoint or null;
+                  publicKey = host.publicKey;
+                  presharedKeyFile = "/etc/wireguard/presharedkey";
+                  allowedIPs = map (a: "${a}/32") host.address;
+                }) (builtins.attrValues others)
+                ++ lib.optional (local ? networkpeer) (
+                  let
+                    peer = cfg.addressMap.${local.networkpeer};
+                  in
+                  {
+                    endpoint = peer.endpoint or null;
+                    publicKey = peer.publicKey;
+                    presharedKeyFile = "/etc/wireguard/presharedkey";
+                    allowedIPs = [ "192.168.4.0/24" ];
+                  }
+                );
             };
           };
 
