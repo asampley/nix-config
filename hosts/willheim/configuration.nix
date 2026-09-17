@@ -214,6 +214,8 @@
             };
 
             networking.hostName = "willheim"; # Define your hostname.
+            # Allow forwarding over wg0
+            networking.nat.enable = true;
 
             # Enable CUPS to print documents.
             # services.printing.enable = true;

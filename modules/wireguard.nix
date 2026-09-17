@@ -83,6 +83,11 @@
                     allowedIPs = [ "192.168.4.0/24" ];
                   }
                 );
+
+              preUp = local.preUp or "";
+              postUp = local.postUp or "";
+              preDown = local.preDown or "";
+              postDown = local.postDown or "";
             };
           };
 
