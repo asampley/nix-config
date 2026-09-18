@@ -45,10 +45,7 @@
           let
             utf-nate-resources = pkgs.symlinkJoin {
               name = "utf-nate-resources";
-              paths = [
-                "${inputs'.utf-nate.packages.utf-nate}/resources"
-              ]
-              ++ (map
+              paths = (map
                 (
                   {
                     command,
@@ -94,7 +91,9 @@
                     update-service = config.systemd.services.steamcmd-update-valheim.name;
                   })
                 )
-              );
+              ) ++ [
+                "${inputs'.utf-nate.packages.utf-nate}/resources"
+              ];
             };
           in
           {
