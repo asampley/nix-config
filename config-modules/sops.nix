@@ -38,7 +38,7 @@
           sops.defaultSopsFile = hostFile;
 
           sops.secrets."ntfy/password" = {
-            path = sharedFile;
+            sopsFile = sharedFile;
           };
         };
     };
