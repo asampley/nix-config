@@ -18,7 +18,10 @@
           system-features = [ "gccarch-armv7-a" ];
         };
 
-        boot.binfmt.emulatedSystems = [ "aarch64-linux" "armv7l-linux" ];
+        boot.binfmt.emulatedSystems = [
+          "aarch64-linux"
+          "armv7l-linux"
+        ];
 
         # Enable container options such as registries
         virtualisation.containers.enable = true;

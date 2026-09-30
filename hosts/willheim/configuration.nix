@@ -38,6 +38,7 @@
         utf-nate
         valheim
         wireguard
+        wireguard-config
         xmpp
         self.inputs.sops-nix.nixosModules.sops
         (
@@ -45,55 +46,57 @@
           let
             utf-nate-resources = pkgs.symlinkJoin {
               name = "utf-nate-resources";
-              paths = (map
-                (
-                  {
-                    command,
-                    run-service,
-                    update-service,
-                  }:
-                  (pkgs.writeTextFile {
-                    name = command;
-                    executable = true;
-                    destination = "/cmd/${command}";
-                    text = ''
-                      #!/bin/sh
-                      set -euf
+              paths =
+                (map
+                  (
+                    {
+                      command,
+                      run-service,
+                      update-service,
+                    }:
+                    (pkgs.writeTextFile {
+                      name = command;
+                      executable = true;
+                      destination = "/cmd/${command}";
+                      text = ''
+                        #!/bin/sh
+                        set -euf
 
-                      export PATH="/run/current-system/sw/bin:$PATH"
+                        export PATH="/run/current-system/sw/bin:$PATH"
 
-                      mode="''${1:-}"
+                        mode="''${1:-}"
 
-                      case "$mode" in
-                        start | restart | stop)
-                          resources/cmd-template/systemctl.sh $mode '${run-service}'
-                          ;;
-                        update)
-                          resources/cmd-template/systemctl.sh start '${update-service}'
-                          ;;
-                        *)
-                          echo "Mode must be one of the following: start, restart, stop, update"
-                          exit
-                          ;;
-                      esac
-                    '';
-                  })
+                        case "$mode" in
+                          start | restart | stop)
+                            resources/cmd-template/systemctl.sh $mode '${run-service}'
+                            ;;
+                          update)
+                            resources/cmd-template/systemctl.sh start '${update-service}'
+                            ;;
+                          *)
+                            echo "Mode must be one of the following: start, restart, stop, update"
+                            exit
+                            ;;
+                        esac
+                      '';
+                    })
+                  )
+                  (
+                    (lib.optional config.services.conan-exiles.enable {
+                      command = "conan";
+                      run-service = config.systemd.services.steam-conan-exiles.name;
+                      update-service = config.systemd.services.steamcmd-update-conan-exiles.name;
+                    })
+                    ++ (lib.optional config.services.valheim.enable {
+                      command = "valheim";
+                      run-service = config.systemd.services.steam-valheim.name;
+                      update-service = config.systemd.services.steamcmd-update-valheim.name;
+                    })
+                  )
                 )
-                (
-                  (lib.optional config.services.conan-exiles.enable {
-                    command = "conan";
-                    run-service = config.systemd.services.steam-conan-exiles.name;
-                    update-service = config.systemd.services.steamcmd-update-conan-exiles.name;
-                  })
-                  ++ (lib.optional config.services.valheim.enable {
-                    command = "valheim";
-                    run-service = config.systemd.services.steam-valheim.name;
-                    update-service = config.systemd.services.steamcmd-update-valheim.name;
-                  })
-                )
-              ) ++ [
-                "${inputs'.utf-nate.packages.utf-nate}/resources"
-              ];
+                ++ [
+                  "${inputs'.utf-nate.packages.utf-nate}/resources"
+                ];
             };
           in
           {

@@ -36,7 +36,9 @@
                 map (peer: {
                   name = peer;
                   value = {
-                    addresses = map (address: "tcp://${address}:22000") config.my.wireguard.addressMap.${peer}.address;
+                    addresses = map (address: "tcp://${address}:22000") [
+                      config.my.wireguard.networks.wg0.nodes.${peer}.address
+                    ];
                     id = lib.trim (builtins.readFile ../hosts/${peer}/syncthing.id);
                   };
                 }) cfg.peers

@@ -30,6 +30,7 @@
         restrict-audio-source-control
         stylix
         wayland
+        wireguard
         x
         inputs.base16.nixosModule
         inputs.sops-nix.nixosModules.sops
@@ -68,6 +69,7 @@
             my.restrict-audio-source-control.enable = true;
             my.stylix.enable = true;
             my.wayland.enable = true;
+            my.wireguard.enable = true;
             my.x.enable = true;
 
             # Open http ports for file share

@@ -3,127 +3,123 @@
   flake.nixosModules.wireguard =
     { config, pkgs, ... }:
     let
-      ipBlock = "192.168.4";
-    in {
+    in
+    {
       options.my.wireguard =
         with lib;
         with types;
         {
           enable = mkEnableOption "wireguard peer settings";
           openFirewall = mkEnableOption "open firewall for receiving initial connections";
-          addressMap = mkOption {
-            type = attrs;
-            default = {
-              "willheim" =
-                let
-                  firewallAppend = [
-                    { rule = "FORWARD -i wg0 -o wg0 -j ACCEPT"; }
-                    {
-                      table = "nat";
-                      rule = "POSTROUTING -s ${ipBlock}.0/24 -o wg0 -j MASQUERADE";
-                      excludeIp6 = true;
-                    }
-                  ];
-                in rec {
-                  index = 1;
-                  listenPort = 55820;
-                  endpoint = "asampley.ca:${toString listenPort}";
-                  peers = [
-                    "miranda"
-                    "phone"
-                    "adam"
-                  ];
-                  postUp = lib.strings.concatLines (map (append: ''
-                    ${pkgs.iptables}/bin/iptables ${if append ? table then "-t ${append.table}" else ""} -A ${append.rule}
-                    ${if !(append.excludeIp6 or false) then "${pkgs.iptables}/bin/ip6tables ${if append ? table then "-t ${append.table}" else ""} -A ${append.rule}" else ""}
-                  '') firewallAppend);
-                  preDown = lib.strings.concatLines (map (append: ''
-                    ${pkgs.iptables}/bin/iptables ${if append ? table then "-t ${append.table}" else ""} -D ${append.rule}
-                    ${if !(append.excludeIp6 or false) then "${pkgs.iptables}/bin/ip6tables ${if append ? table then "-t ${append.table}" else ""} -D ${append.rule}" else ""}
-                  '') firewallAppend);
+          networks = mkOption {
+            type = attrsOf (submodule {
+              options = {
+                ipBlock = mkOption {
+                  type = str;
                 };
-              "miranda" = {
-                index = 2;
-                networkpeer = "willheim";
+                edges = mkOption {
+                  type = listOf attrs;
+                };
+                nodes = mkOption {
+                  type = attrs;
+                };
               };
-              "phone" = {
-                index = 4;
-                networkpeer = "willheim";
-              };
-              "adam" = {
-                index = 192;
-                peers = [ "willheim" ];
-              };
-            };
+            });
             apply =
               value:
-              builtins.mapAttrs (
-                n: v:
-                v
-                // {
-                  address = [ "192.168.4.${toString v.index}" ];
-                  publicKey = lib.trim (builtins.readFile ../hosts/${n}/wireguard.pub);
-                }
-              ) value;
+              lib.recursiveUpdate value (
+                builtins.mapAttrs (name: network: {
+                  nodes = builtins.mapAttrs (nodeName: node: {
+                    address = "${network.ipBlock}.${toString node.index}";
+                    publicKey = lib.trim (builtins.readFile ../hosts/${nodeName}/wireguard.pub);
+                  }) network.nodes;
+                }) value
+              );
           };
         };
 
       config =
         let
           cfg = config.my.wireguard;
-          local = cfg.addressMap.${config.networking.hostName};
-          others = lib.filterAttrs (name: _: builtins.any (n: n == name) local.peers or [ ]) cfg.addressMap;
         in
         lib.mkIf cfg.enable {
           environment.systemPackages = with pkgs; [
             wireguard-tools
           ];
 
-          networking.wg-quick.interfaces = {
-            wg0 = {
-              address = map (a: "${a}/24") local.address;
+          networking.wg-quick.interfaces = builtins.mapAttrs (
+            networkName: networkCfg:
+            let
+              local = networkCfg.nodes.${config.networking.hostName};
+              edges = builtins.filter (value: value ? ${config.networking.hostName}) networkCfg.edges;
+            in
+            {
+              address = [ "${local.address}/24" ];
               listenPort = local.listenPort or null;
               privateKeyFile = "/etc/wireguard/privatekey";
 
-              peers =
-                map (host: {
-                  endpoint = host.endpoint or null;
-                  publicKey = host.publicKey;
-                  presharedKeyFile = "/etc/wireguard/presharedkey";
-                  allowedIPs = map (a: "${a}/32") host.address;
-                }) (builtins.attrValues others)
-                ++ lib.optional (local ? networkpeer) (
-                  let
-                    peer = cfg.addressMap.${local.networkpeer};
-                  in
-                  {
-                    endpoint = peer.endpoint or null;
-                    publicKey = peer.publicKey;
-                    presharedKeyFile = "/etc/wireguard/presharedkey";
-                    allowedIPs = [ "192.168.4.0/24" ];
-                  }
-                );
+              peers = builtins.concatMap (
+                edge:
+                let
+                  peers = lib.filterAttrs (name: _: name != config.networking.hostName) edge;
+                in
+                builtins.attrValues (
+                  builtins.mapAttrs (
+                    peer: peerCfg:
+                    let
+                      peerNode = networkCfg.nodes.${peer};
+                    in
+                    {
+                      endpoint = peerNode.endpoint or null;
+                      publicKey = peerNode.publicKey;
+                      presharedKeyFile = "/etc/wireguard/presharedkey";
+                      allowedIPs = [
+                        "${peerNode.address}/32"
+                      ]
+                      ++ lib.optionals peerCfg.allowedOnWholeNetwork or false [ "${networkCfg.ipBlock}.0/24" ];
+                    }
+                  ) peers
+                )
+              ) edges;
 
               preUp = local.preUp or "";
               postUp = local.postUp or "";
               preDown = local.preDown or "";
               postDown = local.postDown or "";
-            };
-          };
+            }
+          ) (lib.filterAttrs (name: network: network.nodes ? ${config.networking.hostName}) cfg.networks);
 
-          networking.firewall.allowedUDPPorts = lib.mkIf cfg.openFirewall [ local.listenPort ];
-
-          networking.hosts = builtins.zipAttrsWith (_: values: values) (
+          networking.firewall.allowedUDPPorts = lib.mkIf cfg.openFirewall (
             builtins.attrValues (
               builtins.mapAttrs (
-                name: v:
-                builtins.listToAttrs (
-                  map (address: {
-                    name = address;
-                    value = "wg.${name}.local";
-                  }) v.address
-                )
-              ) (others // (if local ? networkpeer then { ${local.networkpeer} = cfg.addressMap.${local.networkpeer}; } else { }))
+                networkName: networkCfg: networkCfg.nodes.${config.networking.hostName}.listenPort
+              ) cfg.networks
+            )
+          );
+
+          networking.hosts = builtins.listToAttrs (
+            builtins.concatLists (
+              builtins.attrValues (
+                builtins.mapAttrs (
+                  networkName: networkCfg:
+                  (builtins.concatMap (
+                    edge:
+                    let
+                      peers = builtins.attrNames (lib.filterAttrs (name: _: name != config.networking.hostName) edge);
+                    in
+                    map (
+                      peer:
+                      let
+                        peerNode = networkCfg.nodes.${peer};
+                      in
+                      {
+                        name = peerNode.address;
+                        value = [ "${networkName}.${peer}.local" ];
+                      }
+                    ) peers
+                  ) networkCfg.edges)
+                ) cfg.networks
+              )
             )
           );
         };
