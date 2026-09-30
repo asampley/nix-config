@@ -132,6 +132,8 @@
           squeekboard
           # desktop background
           swaybg
+          # run wayland programs remotely
+          waypipe
           # clipboard command line and integration
           wl-clipboard
           # x application shim

@@ -72,6 +72,11 @@
       url = "github:reckenrode/nix-foundryvtt";
       #inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    vintagestory = {
+      url = "git+https://codeberg.org/PierreBorine/vintagestory-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -84,6 +89,7 @@
       nix-pkgset,
       nixpkgs,
       sops-nix,
+      vintagestory,
       ...
     }:
     let
@@ -156,6 +162,9 @@
             overlays = [
               self.overlays.tree-sitter-svelte
               self.overlays.sc-controller
+              (prev: final: {
+                vintagestory = vintagestory.packages.${system}.v1-22;
+              })
             ];
           };
 
@@ -180,19 +189,27 @@
                   inputs.stylix.homeModules.stylix
                   base16.homeManagerModule
                   default
-                  games
                   gui
                   notifications
                   podman
                   stylix
                   wayland
                   wine
-                  {
-                    config.my.notifications = {
-                      enable = true;
-                      libnotify.enable = true;
-                    };
-                  }
+                  (
+                    { pkgs, ... }:
+                    {
+                      config = {
+                        my.notifications = {
+                          enable = true;
+                          libnotify.enable = true;
+                        };
+                        home.packages = with pkgs; [
+                          prismlauncher
+                          vintagestory
+                        ];
+                      };
+                    }
+                  )
                 ];
               };
               "asampley@miranda" = {
@@ -202,7 +219,6 @@
                   inputs.stylix.homeModules.stylix
                   base16.homeManagerModule
                   default
-                  games
                   gui
                   nextcloud
                   nextcloud-sops
@@ -217,18 +233,26 @@
                   wayland
                   wine
                   x
-                  {
-                    config.my.tablet.niri = true;
-                    config.my.notifications = {
-                      enable = true;
-                      libnotify.enable = true;
-                      ntfy = {
-                        enable = true;
-                        address = "https://ntfy.asampley.ca";
-                        sops.enable = true;
+                  (
+                    { pkgs, ... }:
+                    {
+                      config = {
+                        my.tablet.niri = true;
+                        my.notifications = {
+                          enable = true;
+                          libnotify.enable = true;
+                          ntfy = {
+                            enable = true;
+                            address = "https://ntfy.asampley.ca";
+                            sops.enable = true;
+                          };
+                        };
+                        home.packages = with pkgs; [
+                          prismlauncher
+                        ];
                       };
-                    };
-                  }
+                    }
+                  )
                 ];
               };
             };
