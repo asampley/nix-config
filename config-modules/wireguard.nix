@@ -30,7 +30,7 @@
                 in
                 rec {
                   index = 1;
-                  listenPort = 55820;
+                  listenPort = 55821;
                   endpoint = "asampley.ca:${toString listenPort}";
                   postUp = lib.strings.concatLines (
                     map (append: ''
