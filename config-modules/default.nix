@@ -1,9 +1,7 @@
-{ self, moduleWithSystem, ... }:
+{ self, ... }:
 {
-  flake.nixosModules.default = moduleWithSystem (
-    { inputs', ... }:
+  flake.nixosModules.default =
     {
-      config,
       lib,
       pkgs,
       ...
@@ -51,7 +49,6 @@
       # $ nix search wget
       environment.systemPackages = with pkgs; [
         git
-        inputs'.nix-alien.packages.nix-alien
         vim
         wget
       ];
@@ -109,8 +106,7 @@
       };
 
       hardware.steam-hardware.enable = true;
-    }
-  );
+    };
 
   flake.homeModules.default =
     {

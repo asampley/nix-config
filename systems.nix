@@ -3,4 +3,5 @@
   "aarch64-linux"
   "aarch64-darwin"
   "i686-linux"
+  "armv7l-linux"
 ]

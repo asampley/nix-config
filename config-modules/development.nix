@@ -15,7 +15,10 @@
         nix.settings = {
           keep-outputs = true;
           keep-derivations = true;
+          system-features = [ "gccarch-armv7-a" ];
         };
+
+        boot.binfmt.emulatedSystems = [ "aarch64-linux" "armv7l-linux" ];
 
         # Enable container options such as registries
         virtualisation.containers.enable = true;

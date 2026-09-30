@@ -20,8 +20,6 @@
             KbdInteractiveAuthentication = false;
           };
         };
-
-        isoImage.edition = "asampley";
       };
     };
 }

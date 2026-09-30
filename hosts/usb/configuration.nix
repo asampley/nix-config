@@ -13,6 +13,8 @@
         ];
 
         nixpkgs.system = "x86_64-linux";
+
+        isoImage.edition = "asampley";
       }
     ];
   };
