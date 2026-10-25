@@ -14,6 +14,7 @@
         adamhouston
         asampley
 
+        anti-virus
         auto-certs
         borgbackup
         borgbackup-notifications

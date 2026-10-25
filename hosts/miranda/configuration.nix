@@ -13,6 +13,7 @@
 
         asampley
 
+        anti-virus
         audio
         bluetooth
         development
@@ -50,6 +51,7 @@
             ];
 
             # Custom modules
+            my.anti-virus.enable = true;
             my.audio.enable = true;
             my.bluetooth.enable = true;
             my.development.enable = true;
