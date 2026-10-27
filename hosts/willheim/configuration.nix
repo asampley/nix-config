@@ -106,6 +106,7 @@
             ];
 
             # Custom modules
+            my.anti-virus.enable = true;
             my.auto-certs.enable = true;
 
             my.backup.borg.notifications.enable = true;

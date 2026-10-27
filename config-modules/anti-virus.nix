@@ -25,6 +25,8 @@
             scanner.enable = lib.mkDefault true;
             # Update definitions
             updater.enable = lib.mkDefault true;
+            # Extra lists
+            fangfrisch.enable = true;
           };
         };
     };
