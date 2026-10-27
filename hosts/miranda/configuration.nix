@@ -98,10 +98,10 @@
             boot.loader.efi.canTouchEfiVariables = true;
 
             networking.hostName = "miranda"; # Define your hostname.
-            services.avahi.publish = {
-              enable = true;
-              addresses = true;
-              userServices = true;
+            services.avahi.settings.publish = {
+              disable-publishing = false;
+              publish-addresses = true;
+              disable-user-service-publishing = false;
             };
 
             # Configure keymap in X11

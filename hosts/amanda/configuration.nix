@@ -104,10 +104,11 @@
               vulkan-tools
             ];
 
-            services.avahi.publish = {
-              enable = true;
-              addresses = true;
-              userServices = true;
+
+            services.avahi.settings.publish = {
+              disable-publishing = false;
+              publish-addresses = true;
+              disable-user-service-publishing = false;
             };
 
             # Older nvidia graphics card driver has bugs with freeing VRAM

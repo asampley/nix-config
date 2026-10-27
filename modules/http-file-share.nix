@@ -10,10 +10,10 @@
         enable = lib.mkEnableOption "share files with http";
 
         serverName =
-          with config.services.avahi;
+          with config.services.avahi.settings.server;
           lib.mkOption {
             type = lib.types.str;
-            default = "${hostName}.${domainName}";
+            default = "${host-name}.${domain-name}";
           };
       };
 

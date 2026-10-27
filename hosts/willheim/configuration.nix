@@ -224,10 +224,10 @@
             # Enable CUPS to print documents.
             # services.printing.enable = true;
 
-            services.avahi.publish = {
-              enable = true;
-              addresses = true;
-              userServices = true;
+            services.avahi.settings.publish = {
+              disable-publishing = false;
+              publish-addresses = true;
+              disable-user-service-publishing = false;
             };
 
             services.openssh = {

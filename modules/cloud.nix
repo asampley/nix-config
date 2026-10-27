@@ -13,7 +13,7 @@
 
           hostName = mkOption {
             type = types.str;
-            default = "${config.services.avahi.hostName}.${config.services.avahi.domainName}";
+            default = "${config.services.avahi.settings.server.host-name}.${config.services.avahi.settings.server.domain-name}";
           };
 
           borgbackup = {
