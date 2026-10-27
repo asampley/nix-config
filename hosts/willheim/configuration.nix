@@ -53,7 +53,7 @@
                     {
                       command,
                       run-service,
-                      update-service,
+                      update-service ? null,
                     }:
                     (pkgs.writeTextFile {
                       name = command;
@@ -71,11 +71,20 @@
                           start | restart | stop)
                             resources/cmd-template/systemctl.sh $mode '${run-service}'
                             ;;
-                          update)
-                            resources/cmd-template/systemctl.sh start '${update-service}'
-                            ;;
+                          ${
+                            if update-service != null then
+                              ''
+                                update)
+                                    resources/cmd-template/systemctl.sh start '${update-service}'
+                                  ;;
+                              ''
+                            else
+                              ""
+                          }
                           *)
-                            echo "Mode must be one of the following: start, restart, stop, update"
+                            echo "Mode must be one of the following: start, restart, stop${
+                              if update-service != null then ", update" else ""
+                            }
                             exit
                             ;;
                         esac
@@ -92,6 +101,10 @@
                       command = "valheim";
                       run-service = config.systemd.services.steam-valheim.name;
                       update-service = config.systemd.services.steamcmd-update-valheim.name;
+                    })
+                    ++ (lib.optional config.services.valheim.enable {
+                      command = "terraria";
+                      run-service = config.systemd.services.terraria.name;
                     })
                   )
                 )
@@ -132,13 +145,13 @@
               supportReverseProxy = true;
             };
 
-            my.cloud.nextcloud = {
-              #enable = true;
-              hostName = "cloud.asampley.ca";
-              https = true;
-              borgbackup.enable = true;
-              #sops.enable = true;
-            };
+            #my.cloud.nextcloud = {
+            #  enable = true;
+            #  hostName = "cloud.asampley.ca";
+            #  https = true;
+            #  borgbackup.enable = true;
+            #  sops.enable = true;
+            #};
 
             my.maintenance = {
               enable = true;
@@ -238,31 +251,27 @@
               };
             };
 
-            #services.conan-exiles = {
-            #  enable = true;
-            #  openFirewall = true;
-            #  modIds = [
-            #    "3725018456"
-            #  ];
-            #};
+            services.conan-exiles = {
+              enable = true;
+              openFirewall = true;
+              modIds = [
+                "3725018456"
+              ];
+            };
 
             services.prometheus.exporters.node.enable = true;
-            #services.prometheus.exporters.borg = {
-            #  enable = true;
-            #  user = "borg";
-            #  settings = {
-            #    borg_repos = builtins.attrValues (
-            #      builtins.mapAttrs (_: value: {
-            #        path = value.repo;
-            #        passcommand = "cat ${config.sops.secrets."borg/pass".path}";
-            #      }) config.services.borgbackup.jobs
-            #    );
-            #  };
-            #};
-
-            #sops.secrets."terraria/pass-env" = {
-            #  owner = config.users.users.terraria.name;
-            #};
+            services.prometheus.exporters.borg = {
+              enable = true;
+              user = "borg";
+              settings = {
+                borg_repos = builtins.attrValues (
+                  builtins.mapAttrs (_: value: {
+                    path = value.repo;
+                    passcommand = "cat ${config.sops.secrets."borg/pass".path}";
+                  }) config.services.borgbackup.jobs
+                );
+              };
+            };
 
             services.terraria = {
               enable = true;
@@ -283,6 +292,21 @@
               );
             };
 
+            sops.secrets."terraria/pass-env" = {
+              owner = config.users.users.terraria.name;
+              sopsFile = "/root/sops/secrets/willheim.yaml";
+            };
+
+            systemd.services.terraria = {
+              # handle with bot integration
+              wantedBy = lib.mkForce [ ];
+              serviceConfig = {
+                EnvironmentFile = config.sops.secrets."terraria/pass-env".path;
+              };
+            };
+
+            users.users.terraria.homeMode = "770";
+
             services.valheim = {
               enable = true;
               openFirewall = true;
@@ -296,13 +320,6 @@
               sopsFile = "/root/sops/secrets/willheim.yaml";
             };
 
-            #systemd.services.terraria = {
-            #  serviceConfig = {
-            #    EnvironmentFile = config.sops.secrets."terraria/pass-env".path;
-            #  };
-            #};
-
-            users.users.terraria.homeMode = "770";
             users.users.syncthing.homeMode = "750";
 
             users.users.borg.extraGroups =
@@ -316,31 +333,31 @@
               ]
               ++ lib.optionals config.services.syncthing.enable [ config.users.users.syncthing.group ];
 
-            #my.backup.borg.jobs.conan-exiles = {
-            #  repo = "ssh://fm2515@fm2515.rsync.net/./backup/conan-exiles";
-            #  paths = "${config.my.steamcmd.servers.conan-exiles.installDir}/ConanSandbox/Saved";
+            my.backup.borg.jobs.conan-exiles = {
+              repo = "ssh://fm2515@fm2515.rsync.net/./backup/conan-exiles";
+              paths = "${config.my.steamcmd.servers.conan-exiles.installDir}/ConanSandbox/Saved";
 
-            #  environment = {
-            #    BORG_REMOTE_PATH = "/usr/local/bin/borg1/borg1";
-            #  };
-            #  encryption = {
-            #    mode = "repokey";
-            #    passCommand = "cat ${config.sops.secrets."borg/pass".path}";
-            #  };
-            #};
+              environment = {
+                BORG_REMOTE_PATH = "/usr/local/bin/borg1/borg1";
+              };
+              encryption = {
+                mode = "repokey";
+                passCommand = "cat ${config.sops.secrets."borg/pass".path}";
+              };
+            };
 
-            #my.backup.borg.jobs.terraria = {
-            #  repo = "ssh://fm2515@fm2515.rsync.net/./backup/terraria";
-            #  paths = "/var/lib/terraria/";
+            my.backup.borg.jobs.terraria = {
+              repo = "ssh://fm2515@fm2515.rsync.net/./backup/terraria";
+              paths = "/var/lib/terraria/";
 
-            #  environment = {
-            #    BORG_REMOTE_PATH = "/usr/local/bin/borg1/borg1";
-            #  };
-            #  encryption = {
-            #    mode = "repokey";
-            #    passCommand = "cat ${config.sops.secrets."borg/pass".path}";
-            #  };
-            #};
+              environment = {
+                BORG_REMOTE_PATH = "/usr/local/bin/borg1/borg1";
+              };
+              encryption = {
+                mode = "repokey";
+                passCommand = "cat ${config.sops.secrets."borg/pass".path}";
+              };
+            };
 
             my.backup.borg.jobs.valheim = {
               repo = "ssh://fm2515@fm2515.rsync.net/./backup/valheim";
@@ -412,15 +429,15 @@
                 };
               };
 
-              "adam.asampley.ca" = {
-                forceSSL = true;
-                enableACME = true;
-                locations."/" = {
-                  proxyPass = "http://192.168.4.192:30000";
-                  proxyWebsockets = true;
-                  recommendedProxySettings = true;
-                };
-              };
+              #"adam.asampley.ca" = {
+              #  forceSSL = true;
+              #  enableACME = true;
+              #  locations."/" = {
+              #    proxyPass = "http://192.168.4.192:30000";
+              #    proxyWebsockets = true;
+              #    recommendedProxySettings = true;
+              #  };
+              #};
             };
 
             services.nginx.streamConfig = ''
@@ -431,6 +448,22 @@
                 proxy_pass 192.168.4.192:30001;
               }
             '';
+
+            sops.secrets."utf-nate/1/keys.toml" = {
+              sopsFile = "/root/sops/secrets/willheim/utf-nate-1.yaml";
+              key = "keys.toml";
+              owner = config.users.users.utf-nate.name;
+              path = "/etc/utf-nate/1/keys.toml";
+              restartUnits = [ "utf-nate@1.service" ];
+            };
+
+            sops.secrets."utf-nate/2/keys.toml" = {
+              sopsFile = "/root/sops/secrets/willheim/utf-nate-2.yaml";
+              key = "keys.toml";
+              owner = config.users.users.utf-nate.name;
+              path = "/etc/utf-nate/2/keys.toml";
+              restartUnits = [ "utf-nate@2.service" ];
+            };
 
             environment.etc."utf-nate/1/config.toml".text = ''
               # List of prefixes recognized by the bot

@@ -12,6 +12,11 @@
           cfg = config.my.sops;
         in
         lib.mkIf cfg.enable {
+          environment.systemPackages = with pkgs; [
+            age
+            sops
+            ssh-to-age
+          ];
           environment.variables = {
             SOPS_AGE_KEY_CMD = "${pkgs.ssh-to-age}/bin/ssh-to-age -private-key -i '${builtins.elemAt config.sops.age.sshKeyPaths 0}'";
           };
