@@ -84,7 +84,7 @@
                           *)
                             echo "Mode must be one of the following: start, restart, stop${
                               if update-service != null then ", update" else ""
-                            }
+                            }"
                             exit
                             ;;
                         esac
@@ -281,12 +281,12 @@
               worldPath = "${config.services.terraria.dataDir}/Joe_Biden's_America.wld";
               package = pkgs.terraria-server.overrideAttrs (
                 final: previous: rec {
-                  version = "1.4.5.6";
+                  version = "1.4.5.8";
                   urlVersion = lib.replaceStrings [ "." ] [ "" ] version;
 
                   src = builtins.fetchurl {
                     url = "https://terraria.org/api/download/pc-dedicated-server/terraria-server-${urlVersion}.zip";
-                    sha256 = "sha256:0mcigrvmgdbivj4qahswm1shhzrlq58q53wc8hs39z8pq9d4ap6p";
+                    sha256 = "sha256:0d43g86zf4kmn7ia10ipw5r98zfdr4by46i9cvvlmlw9jyna84zm";
                   };
                 }
               );
