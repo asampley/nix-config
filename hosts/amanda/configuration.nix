@@ -104,7 +104,6 @@
               vulkan-tools
             ];
 
-
             services.avahi.settings.publish = {
               disable-publishing = false;
               publish-addresses = true;
