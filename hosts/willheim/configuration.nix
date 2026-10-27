@@ -23,16 +23,16 @@
         conan-exiles
         maintenance
         maintenance-notifications
-        matrix
-        matrix-sops
-        nextcloud-sops
+        #matrix
+        #matrix-sops
+        #nextcloud-sops
         prometheus
         prometheus-ntfy
         prometheus-exporters-borg
         notifications
-        ntfy-client-sops
+        #ntfy-client-sops
         ntfy-server
-        ntfy-server-sops
+        #ntfy-server-sops
         sops
         steamcmd
         syncthing-wireguard
@@ -113,18 +113,18 @@
               user = mkOverride 99 config.users.users.borg.name;
               group = mkOverride 99 config.users.users.borg.group;
             };
-            my.backup.borg.jobs.syncthing = {
-              repo = "ssh://fm2515@fm2515.rsync.net/./backup/syncthing";
-              paths = "${config.users.users.syncthing.home}/sync";
+            #my.backup.borg.jobs.syncthing = {
+            #  repo = "ssh://fm2515@fm2515.rsync.net/./backup/syncthing";
+            #  paths = "${config.users.users.syncthing.home}/sync";
 
-              environment = {
-                BORG_REMOTE_PATH = "/usr/local/bin/borg1/borg1";
-              };
-              encryption = {
-                mode = "repokey";
-                passCommand = "cat ${config.sops.secrets."borg/pass".path}";
-              };
-            };
+            #  environment = {
+            #    BORG_REMOTE_PATH = "/usr/local/bin/borg1/borg1";
+            #  };
+            #  encryption = {
+            #    mode = "repokey";
+            #    passCommand = "cat ${config.sops.secrets."borg/pass".path}";
+            #  };
+            #};
 
             my.bittorrent.opentracker = {
               enable = true;
@@ -132,33 +132,33 @@
             };
 
             my.cloud.nextcloud = {
-              enable = true;
+              #enable = true;
               hostName = "cloud.asampley.ca";
               https = true;
               borgbackup.enable = true;
-              sops.enable = true;
+              #sops.enable = true;
             };
 
             my.maintenance = {
               enable = true;
-              notifications.enable = true;
+              #notifications.enable = true;
             };
 
-            my.matrix.tuwunel = {
-              #enable = true;
-              publicDomainName = "asampley.ca";
-              #sops.enable = true;
-            };
+            #my.matrix.tuwunel = {
+            #  enable = true;
+            #  publicDomainName = "asampley.ca";
+            #  sops.enable = true;
+            #};
 
             my.monitoring = {
               prometheus = {
                 enable = true;
                 openFirewall = true;
-                ntfy = {
-                  enable = true;
-                  baseurl = config.my.notifications.ntfy.address;
-                  #baseurl = "http://localhost:2586";
-                };
+                #ntfy = {
+                #  enable = true;
+                #  baseurl = config.my.notifications.ntfy.address;
+                #  #baseurl = "http://localhost:2586";
+                #};
               };
             };
 
@@ -171,21 +171,21 @@
               openFirewall = true;
             };
 
-            my.notifications = {
-              enable = true;
-              ntfy = {
-                enable = true;
-                address = "http://localhost:2586";
-                sops.enable = true;
-              };
-            };
+            #my.notifications = {
+            #  enable = true;
+            #  ntfy = {
+            #    enable = true;
+            #    address = "http://localhost:2586";
+            #    sops.enable = true;
+            #  };
+            #};
 
-            my.ntfy = {
-              enable = true;
-              base-url = "https://ntfy.asampley.ca";
-              openFirewall = true;
-              sops.enable = true;
-            };
+            #my.ntfy = {
+            #  enable = true;
+            #  base-url = "https://ntfy.asampley.ca";
+            #  openFirewall = true;
+            #  sops.enable = true;
+            #};
 
             my.sops.enable = true;
 
@@ -237,31 +237,31 @@
               };
             };
 
-            services.conan-exiles = {
-              enable = true;
-              openFirewall = true;
-              modIds = [
-                "3725018456"
-              ];
-            };
+            #services.conan-exiles = {
+            #  enable = true;
+            #  openFirewall = true;
+            #  modIds = [
+            #    "3725018456"
+            #  ];
+            #};
 
             services.prometheus.exporters.node.enable = true;
-            services.prometheus.exporters.borg = {
-              enable = true;
-              user = "borg";
-              settings = {
-                borg_repos = builtins.attrValues (
-                  builtins.mapAttrs (_: value: {
-                    path = value.repo;
-                    passcommand = "cat ${config.sops.secrets."borg/pass".path}";
-                  }) config.services.borgbackup.jobs
-                );
-              };
-            };
+            #services.prometheus.exporters.borg = {
+            #  enable = true;
+            #  user = "borg";
+            #  settings = {
+            #    borg_repos = builtins.attrValues (
+            #      builtins.mapAttrs (_: value: {
+            #        path = value.repo;
+            #        passcommand = "cat ${config.sops.secrets."borg/pass".path}";
+            #      }) config.services.borgbackup.jobs
+            #    );
+            #  };
+            #};
 
-            sops.secrets."terraria/pass-env" = {
-              owner = config.users.users.terraria.name;
-            };
+            #sops.secrets."terraria/pass-env" = {
+            #  owner = config.users.users.terraria.name;
+            #};
 
             services.terraria = {
               enable = true;
@@ -292,13 +292,14 @@
 
             sops.secrets."valheim/password" = {
               owner = config.users.users.steamcmd-valheim.name;
+              sopsFile = "/root/sops/secrets/willheim.yaml";
             };
 
-            systemd.services.terraria = {
-              serviceConfig = {
-                EnvironmentFile = config.sops.secrets."terraria/pass-env".path;
-              };
-            };
+            #systemd.services.terraria = {
+            #  serviceConfig = {
+            #    EnvironmentFile = config.sops.secrets."terraria/pass-env".path;
+            #  };
+            #};
 
             users.users.terraria.homeMode = "770";
             users.users.syncthing.homeMode = "750";
@@ -314,31 +315,31 @@
               ]
               ++ lib.optionals config.services.syncthing.enable [ config.users.users.syncthing.group ];
 
-            my.backup.borg.jobs.conan-exiles = {
-              repo = "ssh://fm2515@fm2515.rsync.net/./backup/conan-exiles";
-              paths = "${config.my.steamcmd.servers.conan-exiles.installDir}/ConanSandbox/Saved";
+            #my.backup.borg.jobs.conan-exiles = {
+            #  repo = "ssh://fm2515@fm2515.rsync.net/./backup/conan-exiles";
+            #  paths = "${config.my.steamcmd.servers.conan-exiles.installDir}/ConanSandbox/Saved";
 
-              environment = {
-                BORG_REMOTE_PATH = "/usr/local/bin/borg1/borg1";
-              };
-              encryption = {
-                mode = "repokey";
-                passCommand = "cat ${config.sops.secrets."borg/pass".path}";
-              };
-            };
+            #  environment = {
+            #    BORG_REMOTE_PATH = "/usr/local/bin/borg1/borg1";
+            #  };
+            #  encryption = {
+            #    mode = "repokey";
+            #    passCommand = "cat ${config.sops.secrets."borg/pass".path}";
+            #  };
+            #};
 
-            my.backup.borg.jobs.terraria = {
-              repo = "ssh://fm2515@fm2515.rsync.net/./backup/terraria";
-              paths = "/var/lib/terraria/";
+            #my.backup.borg.jobs.terraria = {
+            #  repo = "ssh://fm2515@fm2515.rsync.net/./backup/terraria";
+            #  paths = "/var/lib/terraria/";
 
-              environment = {
-                BORG_REMOTE_PATH = "/usr/local/bin/borg1/borg1";
-              };
-              encryption = {
-                mode = "repokey";
-                passCommand = "cat ${config.sops.secrets."borg/pass".path}";
-              };
-            };
+            #  environment = {
+            #    BORG_REMOTE_PATH = "/usr/local/bin/borg1/borg1";
+            #  };
+            #  encryption = {
+            #    mode = "repokey";
+            #    passCommand = "cat ${config.sops.secrets."borg/pass".path}";
+            #  };
+            #};
 
             my.backup.borg.jobs.valheim = {
               repo = "ssh://fm2515@fm2515.rsync.net/./backup/valheim";
@@ -502,20 +503,21 @@
 
             sops.secrets."borg/pass" = {
               owner = config.users.users.borg.name;
+              sopsFile = "/root/sops/secrets/willheim.yaml";
             };
 
-            my.backup.borg.jobs."${config.my.cloud.nextcloud.borgbackup.name}" = {
-              repo = "ssh://fm2515@fm2515.rsync.net/./backup/nextcloud";
+            #my.backup.borg.jobs."${config.my.cloud.nextcloud.borgbackup.name}" = {
+            #  repo = "ssh://fm2515@fm2515.rsync.net/./backup/nextcloud";
 
-              environment = {
-                BORG_REMOTE_PATH = "/usr/local/bin/borg1/borg1";
-              };
+            #  environment = {
+            #    BORG_REMOTE_PATH = "/usr/local/bin/borg1/borg1";
+            #  };
 
-              encryption = {
-                mode = "repokey";
-                passCommand = "cat ${config.sops.secrets."borg/pass".path}";
-              };
-            };
+            #  encryption = {
+            #    mode = "repokey";
+            #    passCommand = "cat ${config.sops.secrets."borg/pass".path}";
+            #  };
+            #};
 
             systemd.services.${config.services.prometheus.exporters.borg.serviceName}.serviceConfig = {
               Environment = [

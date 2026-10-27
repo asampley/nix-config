@@ -22,9 +22,9 @@
         let
           cfg = config.services.conan-exiles;
         in
-        {
+        lib.mkIf cfg.enable {
           my.steamcmd = {
-            enable = cfg.enable;
+            enable = true;
             servers.conan-exiles = {
               appId = "443030";
               workshop = {

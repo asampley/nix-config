@@ -33,9 +33,9 @@
         let
           cfg = config.services.valheim;
         in
-        {
+        lib.mkIf cfg.enable {
           my.steamcmd = {
-            enable = cfg.enable;
+            enable = true;
             servers.valheim = {
               appId = "896660";
               start = pkgs.writeShellScript "valheim_start.sh" ''
