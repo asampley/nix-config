@@ -25,7 +25,6 @@
         maintenance-notifications
         #matrix
         #matrix-sops
-        #nextcloud-sops
         prometheus
         prometheus-ntfy
         prometheus-exporters-borg
@@ -128,31 +127,30 @@
               user = mkOverride 99 config.users.users.borg.name;
               group = mkOverride 99 config.users.users.borg.group;
             };
-            #my.backup.borg.jobs.syncthing = {
-            #  repo = "ssh://fm2515@fm2515.rsync.net/./backup/syncthing";
-            #  paths = "${config.users.users.syncthing.home}/sync";
+            my.backup.borg.jobs.syncthing = {
+              repo = "ssh://fm2515@fm2515.rsync.net/./backup/syncthing";
+              paths = "${config.users.users.syncthing.home}/sync";
 
-            #  environment = {
-            #    BORG_REMOTE_PATH = "/usr/local/bin/borg1/borg1";
-            #  };
-            #  encryption = {
-            #    mode = "repokey";
-            #    passCommand = "cat ${config.sops.secrets."borg/pass".path}";
-            #  };
-            #};
+              environment = {
+                BORG_REMOTE_PATH = "/usr/local/bin/borg1/borg1";
+              };
+              encryption = {
+                mode = "repokey";
+                passCommand = "cat ${config.sops.secrets."borg/pass".path}";
+              };
+            };
 
             my.bittorrent.opentracker = {
               enable = true;
               supportReverseProxy = true;
             };
 
-            #my.cloud.nextcloud = {
-            #  enable = true;
-            #  hostName = "cloud.asampley.ca";
-            #  https = true;
-            #  borgbackup.enable = true;
-            #  sops.enable = true;
-            #};
+            my.cloud.nextcloud = {
+              enable = true;
+              hostName = "cloud.asampley.ca";
+              https = true;
+              borgbackup.enable = true;
+            };
 
             my.maintenance = {
               enable = true;
@@ -541,18 +539,18 @@
               sopsFile = "/root/sops/secrets/willheim.yaml";
             };
 
-            #my.backup.borg.jobs."${config.my.cloud.nextcloud.borgbackup.name}" = {
-            #  repo = "ssh://fm2515@fm2515.rsync.net/./backup/nextcloud";
+            my.backup.borg.jobs."${config.my.cloud.nextcloud.borgbackup.name}" = {
+              repo = "ssh://fm2515@fm2515.rsync.net/./backup/nextcloud";
 
-            #  environment = {
-            #    BORG_REMOTE_PATH = "/usr/local/bin/borg1/borg1";
-            #  };
+              environment = {
+                BORG_REMOTE_PATH = "/usr/local/bin/borg1/borg1";
+              };
 
-            #  encryption = {
-            #    mode = "repokey";
-            #    passCommand = "cat ${config.sops.secrets."borg/pass".path}";
-            #  };
-            #};
+              encryption = {
+                mode = "repokey";
+                passCommand = "cat ${config.sops.secrets."borg/pass".path}";
+              };
+            };
 
             systemd.services.${config.services.prometheus.exporters.borg.serviceName}.serviceConfig = {
               Environment = [

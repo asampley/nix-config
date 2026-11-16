@@ -24,10 +24,6 @@
             };
           };
 
-          adminPassFile = mkOption {
-            type = types.str;
-          };
-
           https = lib.mkEnableOption "https for nextcloud";
         };
       };
@@ -59,7 +55,6 @@
               };
 
               config = {
-                adminpassFile = cfg.nextcloud.adminPassFile;
                 dbtype = "pgsql";
                 dbname = "nextcloud";
                 dbuser = "nextcloud";
@@ -171,19 +166,6 @@
         ];
     };
 
-  flake.nixosModules.nextcloud-sops =
-    { config, ... }:
-    {
-      options.my.cloud.nextcloud.sops = with lib; {
-        enable = mkEnableOption "sops management for nextcloud";
-      };
-
-      config = lib.mkIf config.my.cloud.nextcloud.sops.enable {
-        sops.secrets.nextcloud-admin-pass.owner = config.users.users.nextcloud.name;
-
-        my.cloud.nextcloud.adminPassFile = config.sops.secrets.nextcloud-admin-pass.path;
-      };
-    };
   flake.homeModules.nextcloud =
     { config, ... }:
     {

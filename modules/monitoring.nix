@@ -119,7 +119,7 @@
             serviceConfig = with lib; {
               Restart = mkDefault "always";
               PrivateTmp = mkDefault true;
-              WorkingDirectory = mkDefault /tmp;
+              WorkingDirectory = mkDefault "/tmp";
               User = cfg.user;
               Group = cfg.group;
               ExecStart = "${self'.packages.borg-exporter}/bin/borg-exporter '${config-file}'";
