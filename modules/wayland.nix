@@ -129,7 +129,7 @@
           # render icons in waybar
           nerd-fonts.symbols-only
           # on screen keyboard
-          squeekboard
+          #squeekboard
           # desktop background
           swaybg
           # run wayland programs remotely
@@ -233,22 +233,22 @@
             };
           };
 
-          on-screen-keyboard = {
-            Unit = {
-              Description = "on screen keyboard";
-              After = [ "graphical-session.target" ];
-              PartOf = [ "graphical-session.target" ];
-              ConditionEnvironment = "WAYLAND_DISPLAY";
-            };
+          #on-screen-keyboard = {
+          #  Unit = {
+          #    Description = "on screen keyboard";
+          #    After = [ "graphical-session.target" ];
+          #    PartOf = [ "graphical-session.target" ];
+          #    ConditionEnvironment = "WAYLAND_DISPLAY";
+          #  };
 
-            Install = {
-              WantedBy = [ "graphical-session.target" ];
-            };
+          #  Install = {
+          #    WantedBy = [ "graphical-session.target" ];
+          #  };
 
-            Service = {
-              ExecStart = with pkgs; "${squeekboard}/bin/squeekboard";
-            };
-          };
+          #  Service = {
+          #    ExecStart = with pkgs; "${squeekboard}/bin/squeekboard";
+          #  };
+          #};
 
           swaybg = {
             Unit = {

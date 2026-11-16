@@ -7,7 +7,7 @@
       ...
     }:
     {
-      time.timeZone = lib.mkDefault "Canada/Mountain";
+      time.timeZone = lib.mkDefault "America/Edmonton";
 
       # Pick only one of the below networking options.
       # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -182,7 +182,6 @@
           neovim
           nh
           nixd
-          openconnect
           (openssh.override { withKerberos = true; })
           sshfs
           tcpdump

@@ -51,7 +51,8 @@
             ];
 
             # Custom modules
-            my.anti-virus.enable = true;
+            # TODO too slow
+            #my.anti-virus.enable = true;
             my.audio.enable = true;
             my.bluetooth.enable = true;
             my.development.enable = true;
@@ -98,6 +99,11 @@
             boot.loader.efi.canTouchEfiVariables = true;
 
             networking.hostName = "miranda"; # Define your hostname.
+
+            networking.networkmanager.plugins = with pkgs; [
+              networkmanager-openconnect
+            ];
+
             services.avahi.settings.publish = {
               disable-publishing = false;
               publish-addresses = true;
