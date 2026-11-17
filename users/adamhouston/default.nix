@@ -10,7 +10,9 @@
       config.users.users.adamhouston = {
         enable = config.my.users.adamhouston.enable;
         isNormalUser = true;
-        openssh.authorizedKeys.keyFiles = map (f: ./ssh/. + ("/" + f)) (builtins.attrNames (builtins.readDir ./ssh));
+        openssh.authorizedKeys.keyFiles = map (f: ./ssh/. + ("/" + f)) (
+          builtins.attrNames (builtins.readDir ./ssh)
+        );
       };
     };
 }

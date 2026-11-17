@@ -5,8 +5,18 @@
     {
       config.my.wireguard = {
         networks = {
+          # Forwarding to other hosts in the network through willheim
           wg0 = rec {
-            ipBlock = "192.168.2";
+            ip4 = {
+              prefix = "10.2.0.";
+              emptySuffix = "0";
+              prefixLength = 24;
+            };
+            ip6 = {
+              prefix = "fd02:";
+              emptySuffix = ":";
+              prefixLength = 16;
+            };
             edges = [
               {
                 "willheim" = {
@@ -20,28 +30,37 @@
               "willheim" =
                 let
                   firewallAppend = [
-                    { rule = "FORWARD -i wg0 -o wg0 -j ACCEPT"; }
+                    {
+                      ip4.rule = "FORWARD -i wg0 -o wg0 -j ACCEPT";
+                      ip6.rule = "FORWARD -i wg0 -o wg0 -j ACCEPT";
+                    }
                     {
                       table = "nat";
-                      rule = "POSTROUTING -s ${ipBlock}.0/24 -o wg0 -j MASQUERADE";
-                      excludeIp6 = true;
+                      ip4.rule = "POSTROUTING -s '${ip4.prefix}${ip4.emptySuffix}/${toString ip4.prefixLength}' -o wg0 -j MASQUERADE";
+                      ip6.rule = "POSTROUTING -s '${ip6.prefix}${ip6.emptySuffix}/${toString ip6.prefixLength}' -o wg0 -j MASQUERADE";
                     }
                   ];
                 in
                 rec {
-                  index = 1;
+                  ip4.suffix = "1";
+                  ip6.suffix = ":1";
                   listenPort = 55821;
                   endpoint = "asampley.ca:${toString listenPort}";
                   postUp = lib.strings.concatLines (
                     map (append: ''
-                      ${pkgs.iptables}/bin/iptables ${
-                        if append ? table then "-t ${append.table}" else ""
-                      } -A ${append.rule}
                       ${
-                        if !(append.excludeIp6 or false) then
+                        if append ? ip4 then
+                          "${pkgs.iptables}/bin/iptables ${
+                            if append ? table then "-t ${append.table}" else ""
+                          } -A ${append.ip4.rule}"
+                        else
+                          ""
+                      }
+                      ${
+                        if append ? ip6 then
                           "${pkgs.iptables}/bin/ip6tables ${
                             if append ? table then "-t ${append.table}" else ""
-                          } -A ${append.rule}"
+                          } -A ${append.ip6.rule}"
                         else
                           ""
                       }
@@ -49,14 +68,19 @@
                   );
                   preDown = lib.strings.concatLines (
                     map (append: ''
-                      ${pkgs.iptables}/bin/iptables ${
-                        if append ? table then "-t ${append.table}" else ""
-                      } -D ${append.rule}
                       ${
-                        if !(append.excludeIp6 or false) then
+                        if append ? ip4 then
+                          "${pkgs.iptables}/bin/iptables ${
+                            if append ? table then "-t ${append.table}" else ""
+                          } -D ${append.ip4.rule}"
+                        else
+                          ""
+                      }
+                      ${
+                        if append ? ip6 then
                           "${pkgs.iptables}/bin/ip6tables ${
                             if append ? table then "-t ${append.table}" else ""
-                          } -D ${append.rule}"
+                          } -D ${append.ip6.rule}"
                         else
                           ""
                       }
@@ -64,35 +88,51 @@
                   );
                 };
               "miranda" = {
-                index = 2;
+                ip4.suffix = "2";
+                ip6.suffix = ":2";
               };
               "amanda" = {
-                index = 3;
+                ip4.suffix = "3";
+                ip6.suffix = ":3";
               };
               "phone" = {
-                index = 4;
+                ip4.suffix = "4";
+                ip6.suffix = ":4";
               };
             };
           };
-          wg1 = {
-            ipBlock = "192.168.4";
-            edges = [
-              {
-                "willheim" = { };
-                "adam" = { };
-              }
-            ];
+          # Only allow communication to willheim from all other nodes
+          wg1 = rec {
+            ip4 = {
+              prefix = "10.4.";
+              emptySuffix = "0.0";
+              prefixLength = 16;
+            };
+            ip6 = {
+              prefix = "fd04:";
+              emptySuffix = ":";
+              prefixLength = 16;
+            };
             nodes = {
               "willheim" = rec {
-                index = 1;
+                ip4.suffix = "0.1";
+                ip6.suffix = ":1";
                 listenPort = 55820;
                 endpoint = "asampley.ca:${toString listenPort}";
               };
+              "miranda" = {
+                ip4.suffix = "1.1";
+                ip6.suffix = ":1:1";
+              };
               "adam" = {
-                index = 192;
+                ip4.suffix = "2.1";
+                ip6.suffix = ":2:1";
               };
             };
-
+            edges = map (other: {
+              "willheim" = { };
+              ${other} = { };
+            }) (builtins.filter (name: name != "willheim") (builtins.attrNames nodes));
           };
         };
       };

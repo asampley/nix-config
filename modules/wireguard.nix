@@ -14,8 +14,39 @@
           networks = mkOption {
             type = attrsOf (submodule {
               options = {
-                ipBlock = mkOption {
-                  type = str;
+                ip4 = mkOption {
+                  type = (
+                    submodule {
+                      options = {
+                        prefix = mkOption {
+                          type = str;
+                        };
+                        emptySuffix = mkOption {
+                          type = str;
+                        };
+                        prefixLength = mkOption {
+                          type = ints.positive;
+                        };
+                      };
+                    }
+                  );
+                };
+                ip6 = mkOption {
+                  type = (
+                    submodule {
+                      options = {
+                        prefix = mkOption {
+                          type = str;
+                        };
+                        emptySuffix = mkOption {
+                          type = str;
+                        };
+                        prefixLength = mkOption {
+                          type = ints.positive;
+                        };
+                      };
+                    }
+                  );
                 };
                 edges = mkOption {
                   type = listOf attrs;
@@ -30,7 +61,10 @@
               lib.recursiveUpdate value (
                 builtins.mapAttrs (name: network: {
                   nodes = builtins.mapAttrs (nodeName: node: {
-                    address = "${network.ipBlock}.${toString node.index}";
+                    ip4Address =
+                      if network ? ip4 && node ? ip4 then "${network.ip4.prefix}${toString node.ip4.suffix}" else null;
+                    ip6Address =
+                      if network ? ip6 && node ? ip6 then "${network.ip6.prefix}${toString node.ip6.suffix}" else null;
                     publicKey = lib.trim (builtins.readFile ../hosts/${nodeName}/wireguard.pub);
                   }) network.nodes;
                 }) value
@@ -54,7 +88,14 @@
               edges = builtins.filter (value: value ? ${config.networking.hostName}) networkCfg.edges;
             in
             {
-              address = [ "${local.address}/24" ];
+              address =
+                [ ]
+                ++ lib.optional (
+                  local.ip4Address != null
+                ) "${local.ip4Address}/${toString networkCfg.ip4.prefixLength}"
+                ++ lib.optional (
+                  local.ip6Address != null
+                ) "${local.ip6Address}/${toString networkCfg.ip6.prefixLength}";
               listenPort = local.listenPort or null;
               privateKeyFile = "/etc/wireguard/privatekey";
 
@@ -73,10 +114,20 @@
                       endpoint = peerNode.endpoint or null;
                       publicKey = peerNode.publicKey;
                       presharedKeyFile = "/etc/wireguard/presharedkey";
-                      allowedIPs = [
-                        "${peerNode.address}/32"
-                      ]
-                      ++ lib.optionals peerCfg.allowedOnWholeNetwork or false [ "${networkCfg.ipBlock}.0/24" ];
+                      allowedIPs =
+                        [ ]
+                        ++ lib.optionals (peerNode.ip4Address != null) (
+                          [ "${peerNode.ip4Address}/32" ]
+                          ++ lib.optional peerCfg.allowedOnWholeNetwork or false (
+                            with networkCfg.ip4; "${prefix}${emptySuffix}/${toString prefixLength}"
+                          )
+                        )
+                        ++ lib.optionals (peerNode.ip6Address != null) (
+                          [ "${peerNode.ip6Address}/128" ]
+                          ++ lib.optional peerCfg.allowedOnWholeNetwork or false (
+                            with networkCfg.ip6; "${prefix}${emptySuffix}/${toString prefixLength}"
+                          )
+                        );
                     }
                   ) peers
                 )
@@ -107,13 +158,18 @@
                     let
                       peers = builtins.attrNames (lib.filterAttrs (name: _: name != config.networking.hostName) edge);
                     in
-                    map (
+                    lib.concatMap (
                       peer:
                       let
                         peerNode = networkCfg.nodes.${peer};
                       in
-                      {
-                        name = peerNode.address;
+                      [ ]
+                      ++ lib.optional (peerNode.ip4Address != null) {
+                        name = peerNode.ip4Address;
+                        value = [ "${networkName}.${peer}.local" ];
+                      }
+                      ++ lib.optional (peerNode.ip6Address != null) {
+                        name = peerNode.ip6Address;
                         value = [ "${networkName}.${peer}.local" ];
                       }
                     ) peers

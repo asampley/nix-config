@@ -15,7 +15,9 @@
         ]
         ++ lib.optional config.virtualisation.docker.enable "docker"
         ++ lib.optional (config.users.groups ? plugdev) config.users.groups.plugdev.name;
-        openssh.authorizedKeys.keyFiles = map (f: ./ssh/. + ("/" + f)) (builtins.attrNames (builtins.readDir ./ssh));
+        openssh.authorizedKeys.keyFiles = map (f: ./ssh/. + ("/" + f)) (
+          builtins.attrNames (builtins.readDir ./ssh)
+        );
       };
     };
 }
