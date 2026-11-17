@@ -121,12 +121,12 @@
                 endpoint = "asampley.ca:${toString listenPort}";
               };
               "miranda" = {
-                ip4.suffix = "1.1";
-                ip6.suffix = ":1:1";
+                ip4.suffix = "0.2";
+                ip6.suffix = ":2";
               };
               "adam" = {
-                ip4.suffix = "2.1";
-                ip6.suffix = ":2:1";
+                ip4.suffix = "1.1";
+                ip6.suffix = ":1:1";
               };
             };
             edges = map (other: {

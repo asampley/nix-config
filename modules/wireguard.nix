@@ -113,7 +113,7 @@
                     {
                       endpoint = peerNode.endpoint or null;
                       publicKey = peerNode.publicKey;
-                      presharedKeyFile = "/etc/wireguard/presharedkey";
+                      presharedKeyFile = "/etc/wireguard/presharedkeys/${peer}";
                       allowedIPs =
                         [ ]
                         ++ lib.optionals (peerNode.ip4Address != null) (
