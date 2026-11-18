@@ -116,17 +116,17 @@
                       presharedKeyFile = "/etc/wireguard/presharedkeys/${peer}";
                       allowedIPs =
                         [ ]
-                        ++ lib.optionals (peerNode.ip4Address != null) (
-                          [ "${peerNode.ip4Address}/32" ]
-                          ++ lib.optional peerCfg.allowedOnWholeNetwork or false (
+                        ++ lib.optional (peerNode.ip4Address != null) (
+                          if peerCfg.allowedOnWholeNetwork or false then
                             with networkCfg.ip4; "${prefix}${emptySuffix}/${toString prefixLength}"
-                          )
+                          else
+                            "${peerNode.ip4Address}/32"
                         )
-                        ++ lib.optionals (peerNode.ip6Address != null) (
-                          [ "${peerNode.ip6Address}/128" ]
-                          ++ lib.optional peerCfg.allowedOnWholeNetwork or false (
+                        ++ lib.optional (peerNode.ip6Address != null) (
+                          if peerCfg.allowedOnWholeNetwork or false then
                             with networkCfg.ip6; "${prefix}${emptySuffix}/${toString prefixLength}"
-                          )
+                          else
+                            "${peerNode.ip6Address}/128"
                         );
                     }
                   ) peers

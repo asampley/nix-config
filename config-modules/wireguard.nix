@@ -17,15 +17,18 @@
               emptySuffix = ":";
               prefixLength = 16;
             };
-            edges = [
-              {
-                "willheim" = {
-                  allowedOnWholeNetwork = true;
-                };
-                "miranda" = { };
-                "phone" = { };
-              }
-            ];
+            edges =
+              map
+                (other: {
+                  "willheim" = {
+                    allowedOnWholeNetwork = true;
+                  };
+                  ${other} = { };
+                })
+                [
+                  "miranda"
+                  "phone"
+                ];
             nodes = {
               "willheim" =
                 let
