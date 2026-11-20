@@ -49,58 +49,63 @@
                   ip6.suffix = ":1";
                   listenPort = 55821;
                   endpoint = "asampley.ca:${toString listenPort}";
-                  postUp = lib.strings.concatLines (
-                    map (append: ''
-                      ${
-                        if append ? ip4 then
-                          "${pkgs.iptables}/bin/iptables ${
-                            if append ? table then "-t ${append.table}" else ""
-                          } -A ${append.ip4.rule}"
-                        else
-                          ""
-                      }
-                      ${
-                        if append ? ip6 then
-                          "${pkgs.iptables}/bin/ip6tables ${
-                            if append ? table then "-t ${append.table}" else ""
-                          } -A ${append.ip6.rule}"
-                        else
-                          ""
-                      }
-                    '') firewallAppend
-                  );
-                  preDown = lib.strings.concatLines (
-                    map (append: ''
-                      ${
-                        if append ? ip4 then
-                          "${pkgs.iptables}/bin/iptables ${
-                            if append ? table then "-t ${append.table}" else ""
-                          } -D ${append.ip4.rule}"
-                        else
-                          ""
-                      }
-                      ${
-                        if append ? ip6 then
-                          "${pkgs.iptables}/bin/ip6tables ${
-                            if append ? table then "-t ${append.table}" else ""
-                          } -D ${append.ip6.rule}"
-                        else
-                          ""
-                      }
-                    '') firewallAppend
-                  );
+                  extraConfig = {
+                    postUp = lib.strings.concatLines (
+                      map (append: ''
+                        ${
+                          if append ? ip4 then
+                            "${pkgs.iptables}/bin/iptables ${
+                              if append ? table then "-t ${append.table}" else ""
+                            } -A ${append.ip4.rule}"
+                          else
+                            ""
+                        }
+                        ${
+                          if append ? ip6 then
+                            "${pkgs.iptables}/bin/ip6tables ${
+                              if append ? table then "-t ${append.table}" else ""
+                            } -A ${append.ip6.rule}"
+                          else
+                            ""
+                        }
+                      '') firewallAppend
+                    );
+                    preDown = lib.strings.concatLines (
+                      map (append: ''
+                        ${
+                          if append ? ip4 then
+                            "${pkgs.iptables}/bin/iptables ${
+                              if append ? table then "-t ${append.table}" else ""
+                            } -D ${append.ip4.rule}"
+                          else
+                            ""
+                        }
+                        ${
+                          if append ? ip6 then
+                            "${pkgs.iptables}/bin/ip6tables ${
+                              if append ? table then "-t ${append.table}" else ""
+                            } -D ${append.ip6.rule}"
+                          else
+                            ""
+                        }
+                      '') firewallAppend
+                    );
+                  };
                 };
               "miranda" = {
                 ip4.suffix = "2";
                 ip6.suffix = ":2";
+                extraConfig.dns = [ "${ip4.prefix}${nodes.willheim.ip4.suffix}" ];
               };
               "amanda" = {
                 ip4.suffix = "3";
                 ip6.suffix = ":3";
+                extraConfig.dns = [ "${ip4.prefix}${nodes.willheim.ip4.suffix}" ];
               };
               "phone" = {
                 ip4.suffix = "4";
                 ip6.suffix = ":4";
+                extraConfig.dns = [ "${ip4.prefix}${nodes.willheim.ip4.suffix}" ];
               };
             };
           };

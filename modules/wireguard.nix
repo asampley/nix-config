@@ -132,12 +132,8 @@
                   ) peers
                 )
               ) edges;
-
-              preUp = local.preUp or "";
-              postUp = local.postUp or "";
-              preDown = local.preDown or "";
-              postDown = local.postDown or "";
             }
+            // (local.extraConfig or { })
           ) (lib.filterAttrs (name: network: network.nodes ? ${config.networking.hostName}) cfg.networks);
 
           networking.firewall.allowedUDPPorts = lib.mkIf cfg.openFirewall (
